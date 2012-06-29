@@ -1,6 +1,8 @@
 % Visual Stimulation Script - Alex Brown, v2.4 April 2011
 %
 % Adapted from Bruno Pichler's Grating Script
+%
+% Test
 
 function [stimulusInfo, filePath] = VisStimAlex(varargin)
 % --------------------------------- Setup---------------------------------
