@@ -127,11 +127,10 @@ directions = (dirsN-1)*(360/directionsNum);
  %% Patch Overlay Generation
  %calculate patch grid
  
- [px, py]=meshgrid(linspace(0, 1, patchGridDimensions(1)+1), linspace(0, 1, patchGridDimensions(2)+1));
- px=px(1:end-1, 1:end-1)'.*screenRect(3);
- py=py.*screenRect(4);
- stepSz=[px(2) py(2)];
- py=py(1:end-1, 1:end-1)';
+ [py, px]=meshgrid(linspace(0, 1, patchGridDimensions(2)+1), linspace(0, 1, patchGridDimensions(1)+1));
+ px=px(1:end-1, 1:end-1).*screenRect(3);
+ py=py(1:end-1, 1:end-1).*screenRect(4);
+ stepSz=[px(2, 1) py(1, 2)];
  
  %enable alpha blending and create masks
  Screen('BlendFunction', window, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -147,7 +146,9 @@ directions = (dirsN-1)*(360/directionsNum);
      maxX=round(px(i)+stepSz(1));
      maxY=round(py(i)+stepSz(2));
      tmp(minX:maxX, minY:maxY, 2)=0;
-     masktex(i)=Screen('MakeTexture', window, tmp);
+     tmpT(:,:,1) = tmp(:,:,1)';
+     tmpT(:,:,2) = tmp(:,:,2)';
+     masktex(i)=Screen('MakeTexture', window, tmpT);
  end
  clear tmp
  %% Stimulus Execution
@@ -197,7 +198,7 @@ for repeat = 1:repeats
                 Screen('DrawTexture', window, gratingtex, srcRect, [], thisDirection);
                 
                 %overdraw the alpha mask
-                Screen('DrawTexture', window, masktex(stimulusInfo.stimuli(idx).patch), [], [], 90);
+                Screen('DrawTexture', window, masktex(stimulusInfo.stimuli(idx).patch));
                 
                 if photoDiodeRect(2) 
                     if d==1
