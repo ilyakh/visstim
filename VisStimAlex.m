@@ -3,12 +3,8 @@
 % Adapted from Bruno Pichler's Grating Script
 
 function [stimulusInfo, filePath] = VisStimAlex(varargin)
-% --------------------------------- Setup---------------------------------
-% Creates input parser and starts the Pyschophysics Toolbox
-%clear mex   
-
-[window,screenRect,ifi,whichScreen]=initScreen; %Returns a handle to the active screen, a rectangle representing size, 
- 
+%% --------------------------------- Setup---------------------------------
+% Creates input parser  
 p=inputParser;
 % ------------------------ Program  Setup ---------------------------------
 
@@ -49,6 +45,11 @@ p.addParamValue('triggering', 'off');
 % photoDiode 'on' will display a patch for photodiode readout. 'off' means
 % no patch will be displayed
 p.addParamValue('photoDiode', 'on');
+
+% add a default save path. This is safest. All timestamped stimulus files
+% will be saved here. To save a different directory, pass that directory
+% in. To suppress saving, pass an empty string ('')
+p.addParamValue('filePath', 'C:\Users\Bruno\Documents\MATLAB\')
 
 
 % Grating parameters:
@@ -99,6 +100,9 @@ p.addParamValue('retinotopyRandMode', 0)                       % Same as randMod
 p.addParamValue('inputLine', 3);
 p.addParamValue('inputPort', 1);
 p.addParamValue('deviceName','Dev1');
+p.addParamValue('testingMode', 0)                       %0 turns off testing mode (assumes DAQ toolbox present, running on windows)
+                                                                         %1 turns testing mode on - bypasses triggering and only allows keypresses  
+                                                                        
 
 %--------------------Parse Inputs------------------------------------------
 % q is a struct containing all inputted or default parameters
@@ -110,44 +114,45 @@ catch
     fprintf('Parameter not found \n')
     return
 end
+
+%--------------------Start PTB ------------------------------------------
+[q.window,q.screenRect,q.ifi]=initScreen; %Returns a handle to the active screen, a rectangle representing size, 
+
 % --------------- Calculated Properties ---------------
 
 % Screen & Distance 
 % screenCenter = [(screenRect(3)-screenRect(1)) (screenRect(4)-screenRect(2))]/2; %Screen Centre in pixels
-pixelsPerCm = screenRect(3) / q.screenWidthCm;             % Scaling factor for conversion between pixels and cm
-mouseDistancePixels = q.mouseDistanceCm .*pixelsPerCm;    % Convert the mouse distance from the screen in to pixels
-spaceFreqPixels = 1 / (2* mouseDistancePixels * tan((1 / q.spaceFreqDeg) * pi / 180 / 2));
+q.pixelsPerCm = q.screenRect(3) / q.screenWidthCm;             % Scaling factor for conversion between pixels and cm
+q.mouseDistancePixels = q.mouseDistanceCm .*q.pixelsPerCm;    % Convert the mouse distance from the screen in to pixels
+q.spaceFreqPixels = 1 / (2* q.mouseDistancePixels * tan((1 / q.spaceFreqDeg) * pi / 180 / 2));
 
-hz = 1/ifi;                                             % Screen flip frequency
+q.hz = 1/q.ifi;                                             % Screen flip frequency
 
 %Photodiode display area
 if strcmp(q.photoDiode, 'on')
-    photoDiodeRect = [0 screenRect(4)-q.diodePatchYSize q.diodePatchXSize screenRect(4)];
+    q.photoDiodeRect = [0 q.screenRect(4)-q.diodePatchYSize q.diodePatchXSize q.screenRect(4)];
 else
-    photoDiodeRect = [0 0 0 0];
+    q.photoDiodeRect = [0 0 0 0];
 end
   
-% --------------- The Program Itself ---------------
+%% --------------- The Program Itself ---------------
 
 
-startTime=datestr(now, 'yyyy/mm/dd HH:MM:SS.FFF');       % Records start time
-output = sprintf(strcat('\r----------------', startTime, '-------------------\r\r')); %outputs start time
-disp(output)
-clear output;
+q.startTime=datestr(now, 'yyyy/mm/dd HH:MM:SS.FFF');       % Records start time
+display(sprintf(strcat('\r----------------', q.startTime, '-------------------\r\r'))); %outputs start time
 HideCursor;   
 
-priorityLevel=MaxPriority(window);                      % Needed to ensure maximum performance
-Priority(priorityLevel);
-   
-Screen('FillRect', window,127);                         % Grey Background for initialisation
-Screen('Flip',window);
+Priority(MaxPriority(q.window));                      % Needed to ensure maximum performance
+
+Screen('FillRect', q.window,127);                         % Grey Background for initialisation
+Screen('Flip',q.window);
 
 % Generate the grating itself
-g=127+127*GratingAlex(q.gratingType,(screenRect(1)+1:screenRect(3)*2), (screenRect(2)+1:screenRect(4)*2), 0, spaceFreqPixels);
-gratingtex=Screen('MakeTexture', window, g);
+g=127+127*GratingAlex(q.gratingType,(q.screenRect(1)+1:q.screenRect(3)*2), (q.screenRect(2)+1:q.screenRect(4)*2), 0, q.spaceFreqPixels);
+q.gratingtex=Screen('MakeTexture', q.window, g);
 
 %Decide where we're going to save it
-fileName = datestr(now, 'yyyymmdd_HH_MM_SS');
+q.fileName = datestr(now, 'yyyymmdd_HH_MM_SS');
 
 % We're ready. Wait for a keypress if we're in keyWait mode
 if q.keyWait
@@ -179,7 +184,7 @@ switch q.triggering
                 stimulusInfo.driftTime = q.driftTime; 
                 stimulusInfo.postDriftHoldTime = q.postDriftHoldTime;
             case 'Ret'
-                stimulusInfo = RetinotopyDrift(q.randMode, q.retinotopyRandMode, q.patchGridDimensions,hz, screenRect, window, q.baseLineTime, q.driftTime, q.directionsNum, spaceFreqPixels, q.tempFreq, gratingtex, q.repeats, photoDiodeRect);
+                stimulusInfo = RetinotopyDrift(q);
                 
         end
     case 'on'
@@ -225,8 +230,10 @@ if ~(strcmp(q.experimentType, 'Flip'))
     stimulusInfo.directions = directions;
 end
 
-filePath = strcat('C:\Users\Bruno\Documents\MATLAB\', fileName);
+if ~isempty(q.filePath)
+filePath = fullfile(q.filePath, q.fileName);
 save(filePath, 'stimulusInfo')
+end
 
 if q.keyWait
     KbWait;

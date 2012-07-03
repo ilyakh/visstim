@@ -1,14 +1,10 @@
-function stimulusInfo =  RetinotopyDrift(randMode, retinotopyRandMode, patchGridDimensions, hz, screenRect, window, baseLineTime,driftTime,  directionsNum, spaceFreqPixels, tempFreq, gratingtex, repeats, photoDiodeRect)
+function stimulusInfo =  RetinotopyDrift(q)
 % This function displays a drifting retinotopy stimulus, untriggered
 %
 % Inputs:
 %
-% Randomisation Mode; Screen refresh rate; Screen Size (as rect); Window
-% Pointer; Baseline recording time; Drift time; Number of directions; the
-% spatial frequency (in pixels) of the grating; Temporal frequency of the
-% grating; gratingtex; number of repeats; lockout time (to prevent
-% mistriggering); 'v' for verbose mode
-%
+%   q - structure with all parameters entered in to or calculated in
+%   VisStimAlex
 %
 % Ouput:
 %   stimulusInfo
@@ -17,24 +13,26 @@ function stimulusInfo =  RetinotopyDrift(randMode, retinotopyRandMode, patchGrid
 %       .baseLineTime           a copy of baseLineTime
 %       .baseLineSFrames        stimulus frames during baseline (calculated)
 %       .directionsNum          Number of different directions displayed in each patch
-%       .repeats                    Number of cycles of ALL patches
+%       .repeats                Number of cycles of ALL patches
 %       .experimentStartTime    what time the experiment started (beginning
 %                               of baseline)
 %       .actualBaseLineTime     how long baseLine actually was (tictoc)
+%       .patchGridDimensions    a copy of patchGridDimensions - the number
+%                                  of divisions ([x y])
 %       .stimuli                a 1 x m struct array:
 %               m = repeat * directions * patchGrid_x*patchGrid_y - a complete list of states
 %                   .type               'Drift'
 %                   .repeat             Which repetition, within the run, this
 %                                           drift was in
-%                   .patchLocation  The location of the patch, in the range
-%                   [0-1.0, 0-1.0]
+%                   .patch              The number of the patch - in order
+%                                           from top left, rows first 
 %                   .num                Which number, within a repetition this
 %                                           drift was
 %                   .direction          In degrees, with 0 being upward movement, increasing CW
 %                   .startTime          Relative time, in seconds, since the
 %                                           start of the experiment, that the
 %                                           state started to be shown
-%                   .endTime        Relative time, in seconds, since the
+%                   .endTime            Relative time, in seconds, since the
 %                                           start of the experiment, that the
 %                                           state stopped being shown
 %
@@ -45,77 +43,77 @@ function stimulusInfo =  RetinotopyDrift(randMode, retinotopyRandMode, patchGrid
 % (it's just easier that way. Think of them as outputs.)
 
 %% ---------------------------Initialisation--------------------------------
-DG_SpatialPeriod = ceil(1/spaceFreqPixels);             % EDIT:Was originally (1/space_freq) / 2. Not sure why.
-DG_ShiftPerFrame = DG_SpatialPeriod * tempFreq / hz;    % How far to shift the grating in each frame
-DG_DirectionFrames = round(driftTime * hz);             % How many frames are to be displayed for each direction
+DG_SpatialPeriod = ceil(1/q.spaceFreqPixels);             % EDIT:Was originally (1/space_freq) / 2. Not sure why.
+DG_ShiftPerFrame = DG_SpatialPeriod * q.tempFreq / q.hz;    % How far to shift the grating in each frame
+DG_DirectionFrames = round(q.driftTime * q.hz);             % How many frames are to be displayed for each direction
 
 %Initialise the output variable
 stimulusInfo.experimentType = 'Ret';
 stimulusInfo.triggering = 'off';
-stimulusInfo.baseLineTime = baseLineTime;
-stimulusInfo.baseLineSFrames = baseLineTime*hz;
-stimulusInfo.directionsNum = directionsNum;
-stimulusInfo.repeats = repeats;
+stimulusInfo.baseLineTime = q.baseLineTime;
+stimulusInfo.baseLineSFrames = q.baseLineTime*q.hz;
+stimulusInfo.directionsNum = q.directionsNum;
+stimulusInfo.repeats = q.repeats;
 
-nPatches = patchGridDimensions(1)*patchGridDimensions(2);
+nPatches = q.patchGridDimensions(1)*q.patchGridDimensions(2);
 
-z = zeros(1, repeats * directionsNum * nPatches);
+z = zeros(1, q.repeats * q.directionsNum * nPatches);
 stimulusInfo.stimuli = struct('type', z, 'repeat', z, 'patch', z, 'num', z, 'direction', z, 'startTime', z, 'endTime', z);
 %% Stimulus Generation
 % This switch structure preloads patch identity
-        patches = zeros(nPatches*repeats, 1);
-switch retinotopyRandMode
+        patches = zeros(nPatches*q.repeats, 1);
+switch q.retinotopyRandMode
     case 0 %orderly progression of patches
-         for i = 1:repeats
+         for i = 1:q.repeats
             patches(((i-1)*nPatches +1): i*nPatches) = 1:nPatches;
          end
     case 1 %pseudorandom repeated
         O=randperm(nPatches);
-         for i = 1:repeats
+         for i = 1:q.repeats
             patches(((i-1)*nPatches +1): i*nPatches)= O;
          end
     case 2 %pseudorandom
-        patches = zeros(nPatches*repeats, 1);
-        for i = 1:repeats
+        patches = zeros(nPatches*q.repeats, 1);
+        for i = 1:q.repeats
             patches(((i-1)*nPatches +1): i*nPatches) = randperm(nPatches);
         end
     case 3
-        for i = 1:repeats
+        for i = 1:q.repeats
             patches(((i-1)*nPatches +1): i*nPatches) = maximallyDifferentDirections(nPatches);
         end
 end
-patches =imresize(patches, [length(patches)*directionsNum, 1], 'nearest'); % duplicate for all directions
+patches =imresize(patches, [length(patches)*q.directionsNum, 1], 'nearest'); % duplicate for all directions
 % This switch structure preloads direction identity
-dirsN=zeros(directionsNum*nPatches*repeats, 1);
-switch randMode
+dirsN=zeros(q.directionsNum*nPatches*q.repeats, 1);
+switch q.randMode
     case 0 %orderly progression of directions
-        d=1:directionsNum;
-        for i=1:directionsNum:length(dirsN)
-            dirsN(i:i+directionsNum-1) = d;
+        d=1:q.directionsNum;
+        for i=1:q.directionsNum:length(dirsN)
+            dirsN(i:i+q.directionsNum-1) = d;
         end
     case 1 %pseudorandom repeated
-        d= randperm(directionsNum);
-        for i=1:directionsNum:length(dirsN)
-            dirsN(i:i+directionsNum-1) = d;
+        d= randperm(q.directionsNum);
+        for i=1:q.directionsNum:length(dirsN)
+            dirsN(i:i+q.directionsNum-1) = d;
         end
     case 2 %pseudorandom
-        for i=1:directionsNum:length(dirsN)
-            d= randperm(directionsNum);
-            dirsN(i:i+directionsNum-1) = d;
+        for i=1:q.directionsNum:length(dirsN)
+            d= randperm(q.directionsNum);
+            dirsN(i:i+q.directionsNum-1) = d;
         end
     case 3 %max diff
-        d= maximallyDifferentDirections(directionsNum);
-        for i=1:directionsNum:length(dirsN)
-            dirsN(i:i+directionsNum-1) = d;
+        d= maximallyDifferentDirections(q.directionsNum);
+        for i=1:q.directionsNum:length(dirsN)
+            dirsN(i:i+q.directionsNum-1) = d;
         end
 end
-directions = (dirsN-1)*(360/directionsNum);
+directions = (dirsN-1)*(360/q.directionsNum);
 
  % and assign
  idx = 0;
- for repeat = 1:repeats
+ for repeat = 1:q.repeats
      for patch=1:nPatches
-         for d=1:directionsNum
+         for d=1:q.directionsNum
              idx=idx+1;
              stimulusInfo.stimuli(idx).repeat = repeat;
              stimulusInfo.stimuli(idx).patch = patches(idx);
@@ -127,14 +125,14 @@ directions = (dirsN-1)*(360/directionsNum);
  %% Patch Overlay Generation
  %calculate patch grid
  
- [py, px]=meshgrid(linspace(0, 1, patchGridDimensions(2)+1), linspace(0, 1, patchGridDimensions(1)+1));
- px=px(1:end-1, 1:end-1).*screenRect(3);
- py=py(1:end-1, 1:end-1).*screenRect(4);
+ [py, px]=meshgrid(linspace(0, 1, q.patchGridDimensions(2)+1), linspace(0, 1, q.patchGridDimensions(1)+1));
+ px=px(1:end-1, 1:end-1).*q.screenRect(3);
+ py=py(1:end-1, 1:end-1).*q.screenRect(4);
  stepSz=[px(2, 1) py(1, 2)];
  
  %enable alpha blending and create masks
- Screen('BlendFunction', window, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
- mask=ones(screenRect(3), screenRect(4), 2) * 128; %unused luminance channel - fill with grey
+ Screen('BlendFunction', q.window, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+ mask=ones(q.screenRect(3), q.screenRect(4), 2) * 128; %unused luminance channel - fill with grey
  mask(:,:,2)=255; %default alpha channel to max(opaque)
  
  masktex=zeros(nPatches, 1); %array of handles
@@ -148,12 +146,12 @@ directions = (dirsN-1)*(360/directionsNum);
      tmp(minX:maxX, minY:maxY, 2)=0;
      tmpT(:,:,1) = tmp(:,:,1)';
      tmpT(:,:,2) = tmp(:,:,2)';
-     masktex(i)=Screen('MakeTexture', window, tmpT);
+     masktex(i)=Screen('MakeTexture', q.window, tmpT);
  end
  clear tmp
  %% Stimulus Execution
  %grey background
- Screen('Rect', window);
+ Screen('Rect', q.window);
    
 %--------------------------------------------------------------------------
 % Let's get going...
@@ -162,13 +160,13 @@ tic
 
 % During baseline, display a black screen
 % Only bother doing this if there IS a baseline requested
-if baseLineTime
+if q.baseLineTime
     for i = 1:floor(stimulusInfo.baseLineSFrames)
-        Screen('FillRect', window, 0);
-        Screen('Flip',window);
+        Screen('FillRect', q.window, 0);
+        Screen('Flip',q.window);
         %Quit only if 'esc' key was pressed
         [~, ~, keyCode] = KbCheck;
-        if find(keyCode) == 27, return, end
+        if keyCode(KbName('escape')), return, end
     end
     stimulusInfo.actualBaseLineTime = toc;
 end
@@ -178,11 +176,11 @@ end
 %the switch structure
 idx=0;
 qFlag=0;
-for repeat = 1:repeats
+for repeat = 1:q.repeats
     for patch = 1:nPatches
         %overdraw the photodiode rectangle if it is of finite size (i.e.
         %wanted)
-        for d=1:directionsNum
+        for d=1:q.directionsNum
             idx=idx+1;
             %Record absolute and relative stimulus start time
             stimulusInfo.stimuli(idx).startTime = toc;
@@ -192,41 +190,33 @@ for repeat = 1:repeats
                 %Define shifted srcRect that cuts out the properly shifted rectangular
                 %area from the texture:
                 xoffset = mod(frameCount*DG_ShiftPerFrame,DG_SpatialPeriod);
-                srcRect=[xoffset 0 (xoffset + screenRect(3)*2) screenRect(4)*2];
+                srcRect=[xoffset 0 (xoffset + q.screenRect(3)*2) q.screenRect(4)*2];
                                 
                 %Draw grating texture, rotated by "angle":
-                Screen('DrawTexture', window, gratingtex, srcRect, [], thisDirection);
+                Screen('DrawTexture', q.window, q.gratingtex, srcRect, [], thisDirection);
                 
                 %overdraw the alpha mask
-                Screen('DrawTexture', window, masktex(stimulusInfo.stimuli(idx).patch));
+                Screen('DrawTexture', q.window, masktex(stimulusInfo.stimuli(idx).patch));
                 
-                if photoDiodeRect(2) 
+                if q.photoDiodeRect(2) 
                     if d==1
-                        Screen('FillRect', window, 255,photoDiodeRect )
+                        Screen('FillRect', q.window, 255,q.photoDiodeRect )
                     else
-                        Screen('FillRect', window, 0, photoDiodeRect)
+                        Screen('FillRect', q.window, 0, q.photoDiodeRect)
                     end
                 end
 
                 %push to screen
-                Screen('Flip',window);
+                Screen('Flip',q.window);
                 
                 %Record measured stimulus display time
-                stimulusInfo.stimuli((repeat-1)*directionsNum + d).endTime = toc;
+                stimulusInfo.stimuli((repeat-1)*q.directionsNum + d).endTime = toc;
             end
         end
         
-        %Quit only if 'esc' or 'q' key was pressed
-        [keyDn, ~, ~] = KbCheck;
-        if keyDn
-            [~, ~, keyCode] = KbCheck;
-            a=find(keyCode);
-            fprintf(num2str(a));
-            if (a == 20) || (a == 41)
-                qFlag=1;
-                return
-            end
-        end
+        %Quit only if 'esc' key was pressed
+        [~, ~, keyCode] = KbCheck;
+        if keyCode(KbName('escape')), qFlag=1; return, end
     end
     if qFlag==1
         return
@@ -234,7 +224,7 @@ for repeat = 1:repeats
 end
     
     %Display a black screen at the end
-    Screen('FillRect', window, 0);
-    Screen('Flip',window);
+    Screen('FillRect', q.window, 0);
+    Screen('Flip',q.window);
     
 end
