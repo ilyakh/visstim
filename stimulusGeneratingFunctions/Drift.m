@@ -43,18 +43,10 @@ function stimulusInfo =  Drift(q)
 % (it's just easier that way. Think of them as outputs.)
 
 %---------------------------Initialisation--------------------------------
-DG_SpatialPeriod = ceil(1/q.spaceFreqPixels);             % EDIT:Was originally (1/space_freq) / 2. Not sure why.
-DG_ShiftPerFrame = DG_SpatialPeriod * q.tempFreq / q.hz;    % How far to shift the grating in each frame
-DG_DirectionFrames = round(q.driftTime * q.hz);             % How many frames are to be displayed for each direction
+[DG_SpatialPeriod, DG_ShiftPerFrame, DG_DirectionFrames] = getDGparams(q);
 
 %Initialise the output variable
-stimulusInfo.experimentType = 'D';
-stimulusInfo.triggering = 'off';
-stimulusInfo.baseLineTime = q.baseLineTime;
-stimulusInfo.baseLineSFrames = q.baseLineTime*q.hz;
-stimulusInfo.directionsNum = q.directionsNum;
-stimulusInfo.repeats = q.repeats;
-
+stimulusInfo = setstimulusinfobasicparams(q);
 z = zeros(1, q.repeats * q.directionsNum);
 stimulusInfo.stimuli = struct('type', z, 'repeat', z, 'num', z, 'direction', z, 'startTime', z, 'endTime', z);
 
