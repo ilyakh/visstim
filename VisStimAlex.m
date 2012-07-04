@@ -214,11 +214,10 @@ try
     end
 catch err
     if strcmp(err.message, 'escape')
+        Screen('CloseAll')
         clear mex
-        fprintf('Program terminated during stimulus presentation \n')
-        if ~isempty(q.filePath)
-            fprintf('stimulusInfo will be saved anyway \n')
-        end
+        fprintf('Program terminated before stimulus presentation \n stimulusInfo will not be saved')
+        return
     else
         clear mex
         rethrow(err)

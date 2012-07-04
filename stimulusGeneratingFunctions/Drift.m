@@ -86,7 +86,7 @@ for repeat = 1:q.repeats
         
         %Quit only if 'esc' key was pressed
        [~, ~, keyCode] = KbCheck;
-        if keyCode(KbName('escape')), error('escape'), end
+        if keyCode(KbName('escape')), clear mex, return, end
     end
 end
 
