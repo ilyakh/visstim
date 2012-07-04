@@ -1,4 +1,4 @@
-function stimulusInfo = DriftTriggered(RandMode, hz, screenRect, window, directionsNum, spaceFreqPixels, tempFreq, gratingtex, repeats, inputLine, inputPort, deviceName, photoDiodeRect)
+function stimulusInfo = DriftTriggered(q)
 % This function displays a dynamic grating that changes on a trigger.
 %
 % Inputs:
@@ -46,65 +46,13 @@ function stimulusInfo = DriftTriggered(RandMode, hz, screenRect, window, directi
 
 
 %---------------------------Initialisation---------------------------------
-%Initialise NI card
-dio = digitalio('nidaq', deviceName);
-input = addline(dio, inputLine, inputPort, 'in');
-
-DG_SpatialPeriod = ceil(1/spaceFreqPixels);              % EDIT:Was originally (1/space_freq) / 2. Not sure why.
-DG_ShiftPerFrame = DG_SpatialPeriod * tempFreq / hz;    % How far to shift the grating in each frame
+q.input = initialisedio(q);
+[DG_SpatialPeriod, DG_ShiftPerFrame] = getDGparams(q);
 
 %Initialise the output variable
-stimulusInfo.experimentType = 'D';
-stimulusInfo.triggering = 'on';
-stimulusInfo.directionsNum = directionsNum;
-stimulusInfo.repeats = repeats;
+stimulusInfo = setstimulusinfobasicparams(q);
+stimulusInfo = setstimulusinfostimuli(stimulusInfo, q);
 
-z = zeros(1, repeats * directionsNum);
-stimulusInfo.stimuli = struct('type', z, 'repeat', z, 'num', z, 'direction', z, 'startTime', z, 'endTime', z);
-
-% This switch structure preloads the stimuli struct with the desired
-% directions
-switch RandMode
-    
-    case 0 %Orderly progression of gratings
-        for repeat = 1:repeats
-            for d=1:directionsNum
-                stimulusInfo.stimuli((repeat -1)*directionsNum + d).repeat = repeat;
-                stimulusInfo.stimuli((repeat -1)*directionsNum + d).num = d;
-                stimulusInfo.stimuli((repeat -1)*directionsNum + d).direction = (d-1)*360/directionsNum; % just dump in the angles in order, starting from 0
-            end
-        end
-    case 1 % Assign a pseudorandom order to be used in each repetition
-        order = randperm(directionsNum);
-        directionsOrder = (order-1) * 360/directionsNum;
-        for repeat = 1:repeats
-            for d=1:directionsNum
-                stimulusInfo.stimuli((repeat -1)*directionsNum + d).repeat = repeat;
-                stimulusInfo.stimuli((repeat -1)*directionsNum + d).num = d;
-                stimulusInfo.stimuli((repeat -1)*directionsNum + d).direction = directionsOrder(d); % assign the appropriate direction
-            end
-        end
-    case 2 % Assign a new pseudorandom order for each repetition
-        for repeat = 1:repeats
-            order = randperm(directionsNum);
-            directionsOrder = (order-1) * 360/directionsNum;
-            for d=1:directionsNum
-                stimulusInfo.stimuli((repeat -1)*directionsNum + d).repeat = repeat;
-                stimulusInfo.stimuli((repeat -1)*directionsNum + d).num = d;
-                stimulusInfo.stimuli((repeat -1)*directionsNum + d).direction = directionsOrder(d); % assign the appropriate direction
-            end
-        end
-    case 3
-        order = maximallyDifferentDirections(directionsNum);
-        directionsOrder = (order-1) * 360/directionsNum;
-        for repeat = 1:repeats
-            for d=1:directionsNum
-                stimulusInfo.stimuli((repeat -1)*directionsNum + d).repeat = repeat;
-                stimulusInfo.stimuli((repeat -1)*directionsNum + d).num = d;
-                stimulusInfo.stimuli((repeat -1)*directionsNum + d).direction = directionsOrder(d); % assign the appropriate direction
-            end
-        end
-end
 %--------------------------------------------------------------------------
 % Let's get going...
 stimulusInfo.experimentStartTime = now;

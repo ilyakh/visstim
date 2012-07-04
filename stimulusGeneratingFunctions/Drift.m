@@ -53,7 +53,7 @@ stimulusInfo = setstimulusinfostimuli(stimulusInfo, q);
 % Let's get going...
 stimulusInfo.experimentStartTime = now;
 tic
-runbaselineuntriggered(q, stimulusInfo)
+runbaseline(q, stimulusInfo)
 stimulusInfo.actualBaseLineTime = toc;
 
 %The Display Loop - Displays the grating at predefined orientations from
