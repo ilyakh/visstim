@@ -56,7 +56,6 @@ tic
 runbaselineuntriggered(q, stimulusInfo)
 stimulusInfo.actualBaseLineTime = toc;
 
-
 %The Display Loop - Displays the grating at predefined orientations from
 %the switch structure
 for repeat = 1:q.repeats
@@ -86,8 +85,8 @@ for repeat = 1:q.repeats
         end
         
         %Quit only if 'esc' key was pressed
-        [~, ~, keyCode] = KbCheck;
-        if find(keyCode) == 27, return, end
+       [~, ~, keyCode] = KbCheck;
+        if keyCode(KbName('escape')), error('escape'), end
     end
 end
 
