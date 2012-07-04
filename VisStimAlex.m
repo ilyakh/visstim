@@ -160,7 +160,7 @@ switch q.triggering
                 stimulusInfo = flipStimulus(window, hz, q.baseLineTime, q.repeats, q.flipTime);
                 stimulusInfo.flipTime = q.flipTime;
             case 'D'
-                stimulusInfo = Drift(q.randMode, hz, screenRect,window, q.baseLineTime, q.driftTime,  q.directionsNum, spaceFreqPixels, q.tempFreq, gratingtex, q.repeats, photoDiodeRect);
+                stimulusInfo = Drift(q);
                 stimulusInfo.driftTime = q.driftTime;
             case 'DH'
                 stimulusInfo = DriftHold(q.randMode, hz, screenRect, window, q.baseLineTime,q.driftTime, q.postDriftHoldTime,  q.directionsNum, spaceFreqPixels, q.tempFreq, gratingtex, q.repeats, photoDiodeRect);
