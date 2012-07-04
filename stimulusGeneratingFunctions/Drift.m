@@ -53,19 +53,8 @@ stimulusInfo = setstimulusinfostimuli(stimulusInfo, q);
 % Let's get going...
 stimulusInfo.experimentStartTime = now;
 tic
-
-% During baseline, display a black screen
-% Only bother doing this if there IS a baseline requested
-if q.baseLineTime
-    for i = 1:floor(stimulusInfo.baseLineSFrames)
-        Screen('FillRect', q.window, 0);
-        Screen('Flip',q.window);
-        %Quit only if 'esc' key was pressed
-        [~, ~, keyCode] = KbCheck;
-        if find(keyCode) == 27, return, end
-    end
-    stimulusInfo.actualBaseLineTime = toc;
-end
+runbaselineuntriggered(q, stimulusInfo)
+stimulusInfo.actualBaseLineTime = toc;
 
 
 %The Display Loop - Displays the grating at predefined orientations from
