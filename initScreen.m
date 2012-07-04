@@ -1,4 +1,4 @@
-function [window,screenRect,ifi,whichScreen]=initScreen;
+function [window,screenRect,ifi,whichScreen]=initScreen
 whichScreen = max(Screen('Screens'));
 %whichScreen = 1;
 [window,screenRect] = Screen(whichScreen, 'OpenWindow');
