@@ -55,22 +55,7 @@ stimulusInfo.experimentStartTime = now;
 tic
 
 % Display a black screen
-Screen('FillRect', q.window, 0);
-Screen('Flip',q.window);
-
-while ~getvalue(q.input)
-    %Quit only if 'esc' key was pressed, advance if 't' was pressed
-    [keyDown, ~, keyCode] = KbCheck;
-    if keyDown
-        if find(keyCode) == 27, return, end
-        if find(keyCode) == 84,
-            %wait for keypress to end (=key up) before breaking
-            while KbCheck
-            end
-            break
-        end
-    end
-end
+runbaseline(q, stimulusInfo);
 stimulusInfo.actualBaseLineTime = toc;
 
 %The Display Loop - Displays the grating at predefined orientations from
@@ -105,7 +90,7 @@ for repeat = 1:q.repeats
             %Quit only if 'esc' key was pressed, advance if 't' was pressed
             [~, ~, keyCode] = KbCheck;
             if keyCode(KbName('escape')), error('escape'), end
-            if keyCode(KbName('t'))
+            if keyCode(KbName('t')) 
                 %wait for keypress to end (=key up) before breaking
                 while KbCheck
                 end

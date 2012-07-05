@@ -12,8 +12,8 @@ switch q.experimentType
         end
     case 'D'
         %Preallocate
-        stimulusInfo.stimuli(q.repeats * q.directionsNum)=[];
         stimulusInfo.stimuli = struct('type', [], 'repeat', [], 'num', [], 'direction', [], 'startTime', [], 'endTime', []);
+        stimulusInfo.stimuli(q.repeats * q.directionsNum).type=[];
 
         % This switch structure preloads the stimuli struct with the desired
         % directions

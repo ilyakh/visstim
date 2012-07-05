@@ -34,10 +34,7 @@ function stimulusInfo = flipStimulus(q)
 %---------------------------Initialisation--------------------------------
 % Initialise the output variable
 stimulusInfo = setstimulusinfobasicparams(q);
-
 stimulusInfo = setstimulusinfostimuli(stimulusInfo, q);
-
-
 
 %-------------------------------------------------------------------------
 

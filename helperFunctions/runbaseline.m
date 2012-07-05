@@ -21,10 +21,10 @@ switch q.triggering
         end
     case 'on'
         % Display a black screen
-        Screen('FillRect', window, 0);
-        Screen('Flip',window);
+        Screen('FillRect', q.window, 0);
+        Screen('Flip',q.window);
         
-        while ~getvalue(input)
+        while ~getvalue(q.input)
             %Quit only if 'esc' key was pressed, advance if 't' was pressed
             [~, ~, keyCode] = KbCheck;
             if keyCode(KbName('escape')), error('escapeBsl'), end
