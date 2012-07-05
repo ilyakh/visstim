@@ -5,12 +5,15 @@ function [stimulusInfo] = setstimulusinfobasicparams(q)
 %Used by all stimulus scripts.
 stimulusInfo.experimentType = q.experimentType;
 stimulusInfo.triggering = q.triggering;
-stimulusInfo.directionsNum = q.directionsNum;
 stimulusInfo.repeats = q.repeats;
 
 if strcmp(q.triggering, 'off')
     stimulusInfo.baseLineTime = q.baseLineTime;
     stimulusInfo.baseLineSFrames = q.baseLineTime*q.hz;
+end
+
+if sum(strcmp(q.experimentType, {'D', 'HD', 'HDH', 'DH'}))
+    stimulusInfo.directionsNum = q.directionsNum;
 end
 end
 
