@@ -1,4 +1,4 @@
-function stimulusInfo = flipSimulusTriggered(window, repeats, inputLine, inputPort, deviceName)
+function stimulusInfo = flipSimulusTriggered(q)
 % function FLIPSTIMULUS flashes a white screen then a black screen for
 % maximal stimulation. For use in testing or trying to evoke big responses
 %
@@ -10,17 +10,14 @@ function stimulusInfo = flipSimulusTriggered(window, repeats, inputLine, inputPo
 %
 % Inputs:
 %
-%   window    a handle to the current window
-%   repeats     how many cycles of white then black to display
-%   inputLine       which line to use on the NI card
-%   inputPort       which port to use on the NI card
+%   q
 %
 % Outputs:
 %
 %  stimulusInfo
 %       .experimentType         'Flip'
 %       .triggering             'on'
-%       .repeats
+%       .q.repeats
 %       .experimentStartTime    what time the experiment started (beginning
 %                               of baseline)
 %       .actualBaseLineTime     how long baseLine actually was (tictoc)
@@ -37,88 +34,50 @@ function stimulusInfo = flipSimulusTriggered(window, repeats, inputLine, inputPo
 
 %----------------------Initialisations-------------------------------------
 % Initialise National Instrument card for triggering
-dio = digitalio('nidaq', deviceName);
-input = addline(dio, inputLine, inputPort, 'in');
+q.input=initialisedio(q);
 
 
 % Initialise the output variable
-stimulusInfo.experimentType = 'Flip';
-stimulusInfo.triggering = 'on';
-stimulusInfo.repeats = repeats;
-
-z = zeros(1, repeats * 2);
-stimulusInfo.stimuli = struct('state', z, 'startTime', z, 'endTime', z);
-
+stimulusInfo = setstimulusinfobasicparams(q);
+stimulusInfo = setstimulusinfostimuli(stimulusInfo, q);
 %--------------------------------------------------------------------------
 
 % start experiment clock
 stimulusInfo.experimentStartTime = now;
 tic
+runbaseline(q, stimulusInfo)
+stimulusInfo.actualBaseLineTime=toc;
 
-
-% During baseline, display a black screen
-% Wait for trigger. Allow the user to terminate the test
-
-Screen('FillRect', window, 0);
-Screen('Flip',window);
-
-while ~getvalue(input)
-    %Quit only if 'esc' key was pressed, advance if 't' was pressed
-    [keyDown, ~, keyCode] = KbCheck;
-    if keyDown
-        if find(keyCode) == 27, return, end
-        if find(keyCode) == 84,
-            %wait for keypress to end (=key up) before breaking
-            while KbCheck
-            end
-            break
-        end
-    end
-end
-stimulusInfo.actualBaseLineTime = toc;
-
-
-for i = 1:repeats*2
-    
-    %Assign stimulus state label
-    switch mod(i, 2)
-        case 1
-            stimulusInfo.stimuli(i).state = 'white';
-        case 0
-            stimulusInfo.stimuli(i).state = 'black';
-    end
-    
-    stimulusInfo.stimuli(i).startTime = toc;
-    
-    % Loop until the input is low (i.e. the previous trigger has ended)
-    % then loop till it's high (a new trigger)
-    
-    Screen('FillRect', window, (255*mod(i, 2)));
-    while getvalue(input)
-        Screen('Flip',window);
-        %Quit only if 'esc' key was pressed, advance if 't' was pressed
-        [keyDown, ~, keyCode] = KbCheck;
-        if keyDown
-            if find(keyCode) == 27, return, end
-            if find(keyCode) == 84,
-                %wait for keypress to end (=key up) before breaking
-                while KbCheck
-                end
-                break
-            end
-        end
-    end
-    
-    
-    while ~getvalue(input)
-        Screen('Flip',window);
-        stimulusInfo.stimuli(i).endTime = toc;
+try
+    for i = 1:q.repeats*2
+        stimulusInfo.stimuli(i).startTime = toc;
         
-        %Quit only if 'esc' key was pressed, advance if 't' was pressed
-        [keyDown, ~, keyCode] = KbCheck;
-        if keyDown
-            if find(keyCode) == 27, return, end
-            if find(keyCode) == 84,
+        % Loop until the input is low (i.e. the previous trigger has ended)
+        % then loop till it's high (a new trigger)
+        
+        Screen('FillRect', q.window, (255*mod(i, 2)));
+        while getvalue(q.input)
+            Screen('Flip',q.window);
+            %Quit only if 'esc' key was pressed, advance if 't' was pressed
+            [~, ~, keyCode] = KbCheck;
+            if keyCode(KbName('escape')), error('escape'), end
+            if keyCode(KbName('t'))
+                %wait for keypress to end (=key up) before breaking
+                while KbCheck
+                end
+                break
+            end
+        end
+        
+        
+        while ~getvalue(q.input)
+            Screen('Flip',q.window);
+            stimulusInfo.stimuli(i).endTime = toc;
+            
+            %Quit only if 'esc' key was pressed, advance if 't' was pressed
+            [~, ~, keyCode] = KbCheck;
+            if keyCode(KbName('escape')), error('escape'), end
+            if keyCode(KbName('t'))
                 %wait for keypress to end (=key up) before breaking
                 while KbCheck
                 end
@@ -126,8 +85,11 @@ for i = 1:repeats*2
             end
         end
     end
-    
-    
-    
+catch err
+    if ~strcmp(err.message, 'escape')
+        rethrow (err)
+    end
 end
+end
+
 

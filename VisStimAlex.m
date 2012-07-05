@@ -196,7 +196,7 @@ try
         case 'on'
             switch q.experimentType
                 case 'Flip'
-                    stimulusInfo = flipSimulusTriggered(window, q.repeats, q.inputLine, q.inputPort, q.deviceName);
+                    stimulusInfo = flipSimulusTriggered(q);
                     stimulusInfo.flipTime = q.flipTime;
                 case 'D'
                     stimulusInfo = DriftTriggered(q);
