@@ -16,7 +16,7 @@ switch q.triggering
                 Screen('Flip',q.window);
                 %Quit only if 'esc' key was pressed
                 [~, ~, keyCode] = KbCheck;
-                if keyCode(KbName('escape')), error('escape'), end
+                if keyCode(KbName('escape')), error('escapeBsl'), end
             end
         end
     case 'on'
@@ -27,7 +27,7 @@ switch q.triggering
         while ~getvalue(input)
             %Quit only if 'esc' key was pressed, advance if 't' was pressed
             [~, ~, keyCode] = KbCheck;
-            if keyCode(KbName('escape')), error('escape'), end
+            if keyCode(KbName('escape')), error('escapeBsl'), end
             if keyCode(KbName('t')) 
                 %wait for keypress to end (=key up) before breaking
                 while KbCheck
