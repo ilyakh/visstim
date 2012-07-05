@@ -3,11 +3,7 @@ function stimulusInfo = DriftTriggered(q)
 %
 % Inputs:
 %
-% Randomisation Mode; Screen refresh rate; Screen Size (as rect); Window
-% Pointer; Number of directions; the spatial frequency (in pixels) of the
-% grating; Temporal frequency of the grating; gratingtex; number of
-% repeats; input Line; input Port, trigger lock out time; 'v' for verbose
-% mode
+%   q
 %
 % Unlike the untriggered version of this function, drift time is determined
 % by triggers therefore there is no need to input drift time or baseline

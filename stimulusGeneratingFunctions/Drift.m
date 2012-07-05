@@ -3,12 +3,7 @@ function stimulusInfo =  Drift(q)
 %
 % Inputs:
 %
-% Randomisation Mode; Screen refresh rate; Screen Size (as rect); Window
-% Pointer; Baseline recording time; Drift time; Number of directions; the
-% spatial frequency (in pixels) of the grating; Temporal frequency of the
-% grating; gratingtex; number of repeats; lockout time (to prevent
-% mistriggering); 'v' for verbose mode
-%
+%   q
 %
 % Ouput:
 %   stimulusInfo

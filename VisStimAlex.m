@@ -174,7 +174,7 @@ try
         case 'off'
             switch q.experimentType
                 case 'Flip'
-                    stimulusInfo = flipStimulus(window, hz, q.baseLineTime, q.repeats, q.flipTime);
+                    stimulusInfo = flipStimulus(q);
                     stimulusInfo.flipTime = q.flipTime;
                 case 'D'
                     stimulusInfo = Drift(q);

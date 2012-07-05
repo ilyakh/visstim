@@ -1,15 +1,11 @@
 
-function stimulusInfo = flipStimulus(window, hz, baseLineTime, repeats, flipTime)
+function stimulusInfo = flipStimulus(q)
 % function FLIPSTIMULUS flashes a white screen then a black screen for
 % maximal stimulation. For use in testing or trying to evoke big responses
 %
 % Inputs:
 %
-%   window    a handle to the current window
-%   hz        the screen refresh rate
-%   baseLineTime    how long to record baseline activity for (in seconds)
-%   repeats     how many cycles of white then black to display
-%   flipTime        how long to hold each state for (in seconds)
+%   q
 %
 % Output:
 %
@@ -37,14 +33,10 @@ function stimulusInfo = flipStimulus(window, hz, baseLineTime, repeats, flipTime
 
 %---------------------------Initialisation--------------------------------
 % Initialise the output variable
-stimulusInfo.experimentType = 'Flip';
-stimulusInfo.triggering = 'off';
-stimulusInfo.baseLineTime = baseLineTime;
-stimulusInfo.baseLineSFrames = baseLineTime*hz;
-stimulusInfo.repeats = repeats;
+stimulusInfo = setstimulusinfobasicparams(q);
 
-z = zeros(1, repeats * 2);
-stimulusInfo.stimuli = struct('state', z, 'startTime', z, 'endTime', z);
+stimulusInfo = setstimulusinfostimuli(stimulusInfo, q);
+
 
 
 %-------------------------------------------------------------------------
@@ -52,35 +44,28 @@ stimulusInfo.stimuli = struct('state', z, 'startTime', z, 'endTime', z);
 %Start the clock & record absolute clock start time
 stimulusInfo.experimentStartTime = now;
 tic;
-% During baseline, display a black screen
-% Only bother doing this if there IS a baseline requested
-if baseLineTime
-    for i = 1:floor(stimulusInfo.baseLineSFrames)
-        Screen('FillRect', window, 0);
-        Screen('Flip',window);
-        %Quit only if 'esc' key was pressed
-        [~, ~, keyCode] = KbCheck;
-        if find(keyCode) == 27, return, end
-    end
-    stimulusInfo.actualBaseLineTime = toc;
-end
-
-for i = 1:repeats * 2
-    switch mod(i, 2)
-        case 1
-            stimulusInfo.stimuli(i).state = 'white';
-        case 0
-            stimulusInfo.stimuli(i).state = 'black';
-    end
+runbaseline(q, stimulusInfo)
+stimulusInfo.actualBaseLineTime=toc;
+try
+for i = 1:q.repeats * 2
     stimulusInfo.stimuli(i).startTime = toc;
     %Display the screen
-    for j = 1:(flipTime*hz)
-        Screen('FillRect', window, 255*(mod(i, 2)));
-        Screen('Flip',window);
+    for j = 1:(q.flipTime*q.hz)
+        Screen('FillRect', q.window, 255*(mod(i, 2)));
+        Screen('Flip',q.window);
         stimulusInfo.stimuli(i).endTime = toc;
     end
     
     %Quit only if 'esc' key was pressed
     [~, ~, keyCode] = KbCheck;
-    if find(keyCode) == 27, return, end
+    if keyCode(KbName('escape')), error('escape'), end
+end
+catch
+    if ~strcmp(err.message, 'escape')
+        rethrow(err)
+    end
+end
+%Display a black screen at the end
+Screen('FillRect', q.window, 0);
+Screen('Flip',q.window);
 end
