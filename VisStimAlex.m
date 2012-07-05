@@ -35,7 +35,10 @@ p.addParamValue('experimentType', 'HD');
 
 % testing mode:
 %0 turns off testing mode (assumes DAQ toolbox present, running on windows) 
-%1 turns testing mode on - bypasses triggering and only allows keypresses, 
+%1 turns testing mode on - do not initialise DIO. Requires a function called 
+%    getvalue to simulate trigger input (simple version just returns true every
+%    n seconds). This can just be false all the time too - in which case
+%    trigger only works by keypresses.
 %2 as 1, but with more verbose output from PTB  
 p.addParamValue('testingMode', 0)
 
