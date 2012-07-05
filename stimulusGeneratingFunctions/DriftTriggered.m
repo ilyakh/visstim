@@ -59,10 +59,10 @@ stimulusInfo.experimentStartTime = now;
 tic
 
 % Display a black screen
-Screen('FillRect', window, 0);
-Screen('Flip',window);
+Screen('FillRect', q.window, 0);
+Screen('Flip',q.window);
 
-while ~getvalue(input)
+while ~getvalue(q.input)
     %Quit only if 'esc' key was pressed, advance if 't' was pressed
     [keyDown, ~, keyCode] = KbCheck;
     if keyDown
@@ -79,83 +79,82 @@ stimulusInfo.actualBaseLineTime = toc;
 
 %The Display Loop - Displays the grating at predefined orientations from
 %the switch structure
-for repeat = 1:repeats
-    for d=1:directionsNum
+try
+for repeat = 1:q.repeats
+    for d=1:q.directionsNum
         %Record absolute and relative stimulus start time
-        stimulusInfo.stimuli((repeat-1)*directionsNum + d).startTime = toc;
-        stimulusInfo.stimuli((repeat-1)*directionsNum + d).type = 'Drift';
-        thisDirection = stimulusInfo.stimuli((repeat-1)*directionsNum + d).direction + 90;       %0, the first orientation, corresponds to movement towards the top of the screen
+        stimulusInfo.stimuli((repeat-1)*q.directionsNum + d).startTime = toc;
+        stimulusInfo.stimuli((repeat-1)*q.directionsNum + d).type = 'Drift';
+        thisDirection = stimulusInfo.stimuli((repeat-1)*q.directionsNum + d).direction + 90;       %0, the first orientation, corresponds to movement towards the top of the screen
         frameCount = 0;
         % Loop while value is high, in case there is trigger overrun from a
         % previous trigger. Then loop while value is low - so until the
         % next trigger
-        while getvalue(input)
+        while getvalue(q.input)
             frameCount = frameCount + 1;
             % Define shifted srcRect that cuts out the properly shifted rectangular
             % area from the texture:
             xoffset = mod(frameCount*DG_ShiftPerFrame,DG_SpatialPeriod);
-            srcRect=[xoffset 0 (xoffset + screenRect(3)*2) screenRect(4)*2];
+            srcRect=[xoffset 0 (xoffset + q.screenRect(3)*2) q.screenRect(4)*2];
             % Draw grating texture, rotated by "angle":
-            Screen('DrawTexture', window, gratingtex, srcRect, [], thisDirection);
-            if photoDiodeRect(2)
+            Screen('DrawTexture', q.window, q.gratingtex, srcRect, [], thisDirection);
+            if q.photoDiodeRect(2)
                 if frameCount == 1
-                    Screen('FillRect', window, 255,photoDiodeRect )
+                    Screen('FillRect', q.window, 255,q.photoDiodeRect )
                 else
-                    Screen('FillRect', window, 0,photoDiodeRect )
+                    Screen('FillRect', q.window, 0,q.photoDiodeRect )
                 end
             end
-            Screen('Flip',window);
+            Screen('Flip',q.window);
             %Quit only if 'esc' key was pressed, advance if 't' was pressed
-            [keyDown, ~, keyCode] = KbCheck;
-            if keyDown
-                if find(keyCode) == 27, return, end
-                if find(keyCode) == 84,
-                    %wait for keypress to end (=key up) before breaking
-                    while KbCheck
-                    end
-                    break
+            [~, ~, keyCode] = KbCheck;
+            if keyCode(KbName('escape')), error('escape'), end
+            if keyCode(KbName('t'))
+                %wait for keypress to end (=key up) before breaking
+                while KbCheck
                 end
+                break
             end
         end
-        while ~getvalue(input)
+        while ~getvalue(q.input)
             frameCount = frameCount + 1;
             % Define shifted srcRect that cuts out the properly shifted rectangular
             % area from the texture:
             xoffset = mod(frameCount*DG_ShiftPerFrame,DG_SpatialPeriod);
-            srcRect=[xoffset 0 (xoffset + screenRect(3)*2) screenRect(4)*2];
+            srcRect=[xoffset 0 (xoffset + q.screenRect(3)*2) q.screenRect(4)*2];
             % Draw grating texture, rotated by "angle":
-            Screen('DrawTexture', window, gratingtex, srcRect, [], thisDirection);
-            if photoDiodeRect(2)
+            Screen('DrawTexture', q.window, q.gratingtex, srcRect, [], thisDirection);
+            if q.photoDiodeRect(2)
                 if frameCount == 1
-                    Screen('FillRect', window, 255,photoDiodeRect )
+                    Screen('FillRect', q.window, 255,q.photoDiodeRect )
                 else
-                    Screen('FillRect', window, 0,photoDiodeRect )
+                    Screen('FillRect', q.window, 0,q.photoDiodeRect )
                 end
             end
-            Screen('Flip',window);
+            Screen('Flip',q.window);
             %Record measured stimulus display time
-            stimulusInfo.stimuli((repeat-1)*directionsNum + d).endTime = toc;
+            stimulusInfo.stimuli((repeat-1)*q.directionsNum + d).endTime = toc;
             %Quit only if 'esc' key was pressed, advance if 't' was pressed
-            [keyDown, ~, keyCode] = KbCheck;
-            if keyDown
-                if find(keyCode) == 27, return, end
-                if find(keyCode) == 84,
-                    %wait for keypress to end (=key up) before breaking
-                    while KbCheck
-                    end
-                    break
+            [~, ~, keyCode] = KbCheck;
+            if keyCode(KbName('escape')), error('escape'), end
+            if keyCode(KbName('t')) 
+                %wait for keypress to end (=key up) before breaking
+                while KbCheck
                 end
+                break
             end
         end
-        
-        
+    end
+end
+catch err
+    if ~strcmp(err.message, 'escape')
+        rethrow(err)
     end
 end
 
-
 %Display a black screen at the end
-Screen('FillRect', window, 0);
-Screen('Flip',window);
+Screen('FillRect', q.window, 0);
+Screen('Flip',q.window);
 
 end
 

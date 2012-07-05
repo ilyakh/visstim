@@ -58,38 +58,43 @@ stimulusInfo.actualBaseLineTime = toc;
 
 %The Display Loop - Displays the grating at predefined orientations from
 %the switch structure
-for repeat = 1:q.repeats
-    for d=1:q.directionsNum
-        %Record absolute and relative stimulus start time
-        stimulusInfo.stimuli((repeat-1)*q.directionsNum + d).startTime = toc;
-        stimulusInfo.stimuli((repeat-1)*q.directionsNum + d).type='Drift';
-        thisDirection = stimulusInfo.stimuli((repeat-1)*q.directionsNum + d).direction + 90;       %0, the first orientation, corresponds to movement towards the top of the screen
-        for frameCount= 1:DG_DirectionFrames;
-            %Define shifted srcRect that cuts out the properly shifted rectangular
-            %area from the texture:
-            xoffset = mod(frameCount*DG_ShiftPerFrame,DG_SpatialPeriod);
-            srcRect=[xoffset 0 (xoffset + q.screenRect(3)*2) q.screenRect(4)*2];
-            
-            %Draw grating texture, rotated by "angle":
-            Screen('DrawTexture', q.window, q.gratingtex, srcRect, [], thisDirection);
-            if q.photoDiodeRect(2)
-                if frameCount == 1
-                    Screen('FillRect', q.window, 255,q.photoDiodeRect )
-                else
-                    Screen('FillRect', q.window, 0,q.photoDiodeRect )
+try
+    for repeat = 1:q.repeats
+        for d=1:q.directionsNum
+            %Record absolute and relative stimulus start time
+            stimulusInfo.stimuli((repeat-1)*q.directionsNum + d).startTime = toc;
+            stimulusInfo.stimuli((repeat-1)*q.directionsNum + d).type='Drift';
+            thisDirection = stimulusInfo.stimuli((repeat-1)*q.directionsNum + d).direction + 90;       %0, the first orientation, corresponds to movement towards the top of the screen
+            for frameCount= 1:DG_DirectionFrames;
+                %Define shifted srcRect that cuts out the properly shifted rectangular
+                %area from the texture:
+                xoffset = mod(frameCount*DG_ShiftPerFrame,DG_SpatialPeriod);
+                srcRect=[xoffset 0 (xoffset + q.screenRect(3)*2) q.screenRect(4)*2];
+                
+                %Draw grating texture, rotated by "angle":
+                Screen('DrawTexture', q.window, q.gratingtex, srcRect, [], thisDirection);
+                if q.photoDiodeRect(2)
+                    if frameCount == 1
+                        Screen('FillRect', q.window, 255,q.photoDiodeRect )
+                    else
+                        Screen('FillRect', q.window, 0,q.photoDiodeRect )
+                    end
                 end
+                Screen('Flip',q.window);
+                %Record measured stimulus display time
+                stimulusInfo.stimuli((repeat-1)*q.directionsNum + d).endTime = toc;
             end
-            Screen('Flip',q.window);
-            %Record measured stimulus display time
-            stimulusInfo.stimuli((repeat-1)*q.directionsNum + d).endTime = toc;
+            
+            %Quit only if 'esc' key was pressed
+            [~, ~, keyCode] = KbCheck;
+            if keyCode(KbName('escape')), error('escape'), end
         end
-        
-        %Quit only if 'esc' key was pressed
-       [~, ~, keyCode] = KbCheck;
-        if keyCode(KbName('escape')), clear mex, return, end
+    end
+catch err
+    if ~strcmp(err.message, 'escape')
+        rethrow(err)
     end
 end
-
 %Display a black screen at the end
 Screen('FillRect', q.window, 0);
 Screen('Flip',q.window);
