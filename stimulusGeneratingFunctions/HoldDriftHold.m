@@ -1,15 +1,10 @@
-function  stimulusInfo = HoldDriftHold( randMode, hz, screenRect, window, baseLineTime,  preDriftHoldTime, driftTime, postDriftHoldTime, directionsNum, spaceFreqPixels, tempFreq, gratingtex, repeats, photoDiodeRect)
+function  stimulusInfo = HoldDriftHold(q)
 %HOLDMOVEHOLD  This function displays static then drifting then static
 % gratings, all in the same direction, for specified times.
 %
 % Inputs:
 %
-% Randomisation Mode; Screen refresh rate; Screen Size (as rect); Window Pointer;
-% Baseline recording time; Predrift hold tim; Drift time; Postdrift hold
-% time; Number of directions; the spatial frequency (in pixels) of the
-% grating; Temporal frequency of the grating; gratingtex; number of
-% repeats; lockout time (to prevent mistriggering); 'v' for verbose mode
-%
+%   q
 %
 % Ouput:
 %   stimulusInfo
@@ -43,183 +38,91 @@ function  stimulusInfo = HoldDriftHold( randMode, hz, screenRect, window, baseLi
 %       .temporalFreq           the grating temporal frequency
 %       .spatialFreq            the grating spatial frequency
 % (it's just easier that way. Think of them as outputs.)
-
 %---------------------------Initialisation--------------------------------
-
-DG_SpatialPeriod = ceil(1/spaceFreqPixels);             % EDIT:Was originally (1/space_freq) / 2. Not sure why.
-DG_ShiftPerFrame = DG_SpatialPeriod * tempFreq / hz;    % How far to shift the grating in each frame
+[DG_SpatialPeriod, DG_ShiftPerFrame] = getDGparams(q);
 
 %Initialise the output variable
-stimulusInfo.experimentType = 'HDH';
-stimulusInfo.triggering = 'off';
-stimulusInfo.baseLineTime = baseLineTime;
-stimulusInfo.baseLineSFrames = baseLineTime*hz;
-stimulusInfo.directionsNum = directionsNum;
-stimulusInfo.repeats = repeats;
-
-z = zeros(1, repeats * directionsNum*3);            % There will be 3 states for each orientation, of which there are
-% directionsNum * repeats
-stimulusInfo.stimuli = struct('type', z, 'repeat', z, 'num', z, 'direction', z, 'startTime', z, 'endTime', z);
-
-% This switch structure preloads the stimuli struct with the desired
-% directions
-currentStimIndex = 0;
-switch randMode
-    
-    case 0 %Orderly progression of gratings
-        for repeat = 1:repeats
-            for d=1:directionsNum
-                stimulusInfo.stimuli(currentStimIndex*3+1).repeat = repeat;
-                stimulusInfo.stimuli(currentStimIndex*3+1).num = d;
-                stimulusInfo.stimuli(currentStimIndex*3+1).direction = (d-1)*360/directionsNum; % just dump in the angles in order, starting from 0
-                stimulusInfo.stimuli(currentStimIndex*3+2).repeat = repeat;
-                stimulusInfo.stimuli(currentStimIndex*3+2).num = d;
-                stimulusInfo.stimuli(currentStimIndex*3+2).direction = (d-1)*360/directionsNum;
-                stimulusInfo.stimuli(currentStimIndex*3+3).repeat = repeat;
-                stimulusInfo.stimuli(currentStimIndex*3+3).num = d;
-                stimulusInfo.stimuli(currentStimIndex*3+3).direction = (d-1)*360/directionsNum;
-                currentStimIndex = currentStimIndex + 1;
-            end
-        end
-    case 1 % Assign a pseudorandom order to be used in each repetition
-        order = randperm(directionsNum);
-        directionsOrder = (order-1) * 360/directionsNum;
-        for repeat = 1:repeats
-            for d=1:directionsNum
-                stimulusInfo.stimuli(currentStimIndex*3+1).repeat = repeat;
-                stimulusInfo.stimuli(currentStimIndex*3+1).num = d;
-                stimulusInfo.stimuli(currentStimIndex*3+1).direction = directionsOrder(d); % assign the appropriate direction
-                stimulusInfo.stimuli(currentStimIndex*3+2).repeat = repeat;
-                stimulusInfo.stimuli(currentStimIndex*3+2).num = d;
-                stimulusInfo.stimuli(currentStimIndex*3+2).direction = directionsOrder(d);
-                stimulusInfo.stimuli(currentStimIndex*3+3).repeat = repeat;
-                stimulusInfo.stimuli(currentStimIndex*3+3).num = d;
-                stimulusInfo.stimuli(currentStimIndex*3+3).direction = directionsOrder(d);
-                currentStimIndex = currentStimIndex + 1;
-            end
-        end
-    case 2 % Assign a new pseudorandom order for each repetition
-        for repeat = 1:repeats
-            order = randperm(directionsNum);
-            directionsOrder = (order-1) * 360/directionsNum;
-            for d=1:directionsNum
-                stimulusInfo.stimuli(currentStimIndex*3+1).repeat = repeat;
-                stimulusInfo.stimuli(currentStimIndex*3+1).num = d;
-                stimulusInfo.stimuli(currentStimIndex*3+1).direction = directionsOrder(d); % assign the appropriate direction
-                stimulusInfo.stimuli(currentStimIndex*3+2).repeat = repeat;
-                stimulusInfo.stimuli(currentStimIndex*3+2).num = d;
-                stimulusInfo.stimuli(currentStimIndex*3+2).direction = directionsOrder(d);
-                stimulusInfo.stimuli(currentStimIndex*3+3).repeat = repeat;
-                stimulusInfo.stimuli(currentStimIndex*3+3).num = d;
-                stimulusInfo.stimuli(currentStimIndex*3+3).direction = directionsOrder(d);
-                currentStimIndex = currentStimIndex + 1;
-            end
-        end
-    case 3
-        order = maximallyDifferentDirections(directionsNum);
-        directionsOrder = (order-1) * 360/directionsNum;
-        for repeat = 1:repeats
-            for d=1:directionsNum
-                stimulusInfo.stimuli(currentStimIndex*3+1).repeat = repeat;
-                stimulusInfo.stimuli(currentStimIndex*3+1).num = d;
-                stimulusInfo.stimuli(currentStimIndex*3+1).direction = directionsOrder(d); % assign the appropriate direction
-                stimulusInfo.stimuli(currentStimIndex*3+2).repeat = repeat;
-                stimulusInfo.stimuli(currentStimIndex*3+2).num = d;
-                stimulusInfo.stimuli(currentStimIndex*3+2).direction = directionsOrder(d);
-                stimulusInfo.stimuli(currentStimIndex*3+3).repeat = repeat;
-                stimulusInfo.stimuli(currentStimIndex*3+3).num = d;
-                stimulusInfo.stimuli(currentStimIndex*3+3).direction = directionsOrder(d);
-                currentStimIndex = currentStimIndex + 1;
-            end
-        end
-end
+stimulusInfo = setstimulusinfobasicparams(q);
+stimulusInfo = setstimulusinfostimuli(stimulusInfo, q);
 
 %--------------------------------------------------------------------------
 % Let's get going...
 stimulusInfo.experimentStartTime = now;
 tic
-% During baseline, display a black screen
-% Only bother doing this if there IS a baseline requested
-if baseLineTime
-    for i = 1:round(stimulusInfo.baseLineSFrames)
-        Screen('FillRect', window, 0);
-        Screen('Flip',window);
-        %Quit only if 'esc' key was pressed
-        [~, ~, keyCode] = KbCheck;
-        if find(keyCode) == 27, return, end
-    end
-    stimulusInfo.actualBaseLineTime = toc;
-end
-
+runbaseline(q, stimulusInfo)
+stimulusInfo.actualBaseLineTime = toc;
 
 %The Display Loop - Displays the grating at predefined orientations from
 %the switch structure
-
-currentStimIndex = 0;       %keeps track of what index we are up to
-for repeat = 1:repeats
-    for d=1:directionsNum
-        currentStimIndex = currentStimIndex + 1;
-        %PreDrift Hold
-        stimulusInfo.stimuli(currentStimIndex).type = 'PreDriftHold';
-        stimulusInfo.stimuli(currentStimIndex).startTime = toc;
-        thisDirection = stimulusInfo.stimuli(currentStimIndex).direction + 90;       %0, the first orientation, corresponds to movement towards the top of the screen
-        srcRect=[0 0 screenRect(3)*2 screenRect(4)*2];
-        for holdFrames = 1:round(preDriftHoldTime*hz)
-            Screen('DrawTexture', window, gratingtex, srcRect, [], thisDirection);
-            if photoDiodeRect(2)
-                Screen('FillRect', window, 255,photoDiodeRect )
+try
+    currentStimIndex = 0;       %keeps track of what index we are up to
+    for repeat = 1:q.repeats
+        for d=1:q.directionsNum
+            currentStimIndex = currentStimIndex + 1;
+            %PreDrift Hold
+            stimulusInfo.stimuli(currentStimIndex).type = 'PreDriftHold';
+            stimulusInfo.stimuli(currentStimIndex).startTime = toc;
+            thisDirection = stimulusInfo.stimuli(currentStimIndex).direction + 90;       %0, the first orientation, corresponds to movement towards the top of the screen
+            srcRect=[0 0 q.screenRect(3)*2 q.screenRect(4)*2];
+            for holdFrames = 1:round(q.preDriftHoldTime*q.hz)
+                Screen('DrawTexture', q.window, q.gratingtex, srcRect, [], thisDirection);
+                if q.photoDiodeRect(2)
+                    Screen('FillRect', q.window, 255,q.photoDiodeRect )
+                end
+                Screen('Flip',q.window);
+                stimulusInfo.stimuli(currentStimIndex).endTime = toc; %record actual time taken
             end
-            Screen('Flip',window);
-            stimulusInfo.stimuli(currentStimIndex).endTime = toc; %record actual time taken
-        end
-        
-        %Quit only if 'esc' key was pressed
-        [~, ~, keyCode] = KbCheck;
-        if find(keyCode) == 27, return, end
-        
-        currentStimIndex = currentStimIndex + 1;
-        %Drift
-        stimulusInfo.stimuli(currentStimIndex).type = 'Drift';
-        stimulusInfo.stimuli(currentStimIndex).startTime = toc;
-        for frameCount= 1:round(driftTime * hz);
-            % Define shifted srcRect that cuts out the properly shifted rectangular
-            % area from the texture:
-            xoffset = mod(frameCount*DG_ShiftPerFrame,DG_SpatialPeriod);
-            srcRect=[xoffset 0 (xoffset + screenRect(3)*2) screenRect(4)*2];
+            %Quit only if 'esc' key was pressed
+            [~, ~, keyCode] = KbCheck;
+            if keyCode(KbName('escape')), error('escape'), end
             
-            % Draw grating texture, rotated by "angle":
-            Screen('DrawTexture', window, gratingtex, srcRect, [], thisDirection);
-            if photoDiodeRect(2)
-                Screen('FillRect', window, 255,photoDiodeRect )
+            currentStimIndex = currentStimIndex + 1;
+            %Drift
+            stimulusInfo.stimuli(currentStimIndex).type = 'Drift';
+            stimulusInfo.stimuli(currentStimIndex).startTime = toc;
+            for frameCount= 1:round(q.driftTime * q.hz);
+                % Define shifted srcRect that cuts out the properly shifted rectangular
+                % area from the texture:
+                xoffset = mod(frameCount*DG_ShiftPerFrame,DG_SpatialPeriod);
+                srcRect=[xoffset 0 (xoffset + q.screenRect(3)*2) q.screenRect(4)*2];
+                
+                % Draw grating texture, rotated by "angle":
+                Screen('DrawTexture', q.window, q.gratingtex, srcRect, [], thisDirection);
+                if q.photoDiodeRect(2)
+                    Screen('FillRect', q.window, 255,q.photoDiodeRect )
+                end
+                Screen('Flip',q.window);
+                stimulusInfo.stimuli(currentStimIndex).endTime = toc; %record actual time taken
             end
-            Screen('Flip',window);
-            stimulusInfo.stimuli(currentStimIndex).endTime = toc; %record actual time taken
-        end
-        %Quit only if 'esc' key was pressed
-        [~, ~, keyCode] = KbCheck;
-        if find(keyCode) == 27, return, end
-        
-        currentStimIndex = currentStimIndex + 1;
-        %PostDrift Hold
-        stimulusInfo.stimuli(currentStimIndex).type = 'PostDriftHold';
-        stimulusInfo.stimuli(currentStimIndex).startTime = toc;
-        for holdFrames = 1:round(postDriftHoldTime*hz)
-            Screen('DrawTexture', window, gratingtex, srcRect, [], thisDirection);
-            if photoDiodeRect(2)
-                Screen('FillRect', window, 0,photoDiodeRect )
+            %Quit only if 'esc' key was pressed
+            [~, ~, keyCode] = KbCheck;
+            if keyCode(KbName('escape')), error('escape'), end
+            
+            currentStimIndex = currentStimIndex + 1;
+            %PostDrift Hold
+            stimulusInfo.stimuli(currentStimIndex).type = 'PostDriftHold';
+            stimulusInfo.stimuli(currentStimIndex).startTime = toc;
+            for holdFrames = 1:round(q.postDriftHoldTime*q.hz)
+                Screen('DrawTexture', q.window, q.gratingtex, srcRect, [], thisDirection);
+                if q.photoDiodeRect(2)
+                    Screen('FillRect', q.window, 0,q.photoDiodeRect )
+                end
+                Screen('Flip',q.window);
+                stimulusInfo.stimuli(currentStimIndex).endTime = toc; %record actual time taken
             end
-            Screen('Flip',window);
-            stimulusInfo.stimuli(currentStimIndex).endTime = toc; %record actual time taken
+            %Quit only if 'esc' key was pressed
+            [~, ~, keyCode] = KbCheck;
+            if keyCode(KbName('escape')), error('escape'), end
         end
-        %Quit only if 'esc' key was pressed
-        [~, ~, keyCode] = KbCheck;
-        if find(keyCode) == 27, return, end
+    end
+catch err
+    if ~strcmp(err.message, 'escape')
+        rethrow(err)
     end
 end
-
 %Display a black screen at the end
-Screen('FillRect', window, 0);
-Screen('Flip',window);
+Screen('FillRect', q.window, 0);
+Screen('Flip',q.window);
 
 end
 
