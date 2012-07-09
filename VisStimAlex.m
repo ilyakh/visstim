@@ -184,7 +184,7 @@ try
                     stimulusInfo.driftTime = q.driftTime;
                     stimulusInfo.postDriftHoldTime = q.postDriftHoldTime;
                 case 'HD'
-                    stimulusInfo = HoldDrift(q.randMode, hz, screenRect, window, q.baseLineTime,q.preDriftHoldTime,q.driftTime,  q.directionsNum, spaceFreqPixels, q.tempFreq, gratingtex, q.repeats, photoDiodeRect);
+                    stimulusInfo = HoldDrift(q);
                     stimulusInfo.preDriftHoldTime = q.preDriftHoldTime;
                     stimulusInfo.driftTime = q.driftTime;
                 case 'HDH'
@@ -206,7 +206,7 @@ try
                     stimulusInfo.driftTime = q.driftTime;
                     stimulusInfo.postDriftHoldTime = q.postDriftHoldTime;
                 case 'HD'
-                    stimulusInfo = HoldDriftTriggered(q.randMode, hz, screenRect, window,  q.preDriftHoldTime, q.directionsNum, spaceFreqPixels, q.tempFreq, gratingtex, q.repeats, q.inputLine, q.inputPort, q.deviceName, photoDiodeRect);
+                    stimulusInfo = HoldDriftTriggered(q);
                     stimulusInfo.preDriftHoldTime = q.preDriftHoldTime;
                     stimulusInfo.driftTime = q.driftTime;
                 case 'HDH'
