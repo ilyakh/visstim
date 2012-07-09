@@ -180,7 +180,7 @@ try
                     stimulusInfo = Drift(q);
                     stimulusInfo.driftTime = q.driftTime;
                 case 'DH'
-                    stimulusInfo = DriftHold(q.randMode, hz, screenRect, window, q.baseLineTime,q.driftTime, q.postDriftHoldTime,  q.directionsNum, spaceFreqPixels, q.tempFreq, gratingtex, q.repeats, photoDiodeRect);
+                    stimulusInfo = DriftHold(q);
                     stimulusInfo.driftTime = q.driftTime;
                     stimulusInfo.postDriftHoldTime = q.postDriftHoldTime;
                 case 'HD'
@@ -202,7 +202,7 @@ try
                     stimulusInfo = DriftTriggered(q);
                     stimulusInfo.driftTime = q.driftTime;
                 case 'DH'
-                    stimulusInfo = DriftHoldTriggered(q.randMode, hz, screenRect, window,q.driftTime,  q.directionsNum, spaceFreqPixels, q.tempFreq, gratingtex, q.repeats, q.inputLine, q.inputPort, q.deviceName, photoDiodeRect);
+                    stimulusInfo = DriftHoldTriggered(q);
                     stimulusInfo.driftTime = q.driftTime;
                     stimulusInfo.postDriftHoldTime = q.postDriftHoldTime;
                 case 'HD'
