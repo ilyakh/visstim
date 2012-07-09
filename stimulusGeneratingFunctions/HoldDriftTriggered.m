@@ -118,6 +118,7 @@ catch err
     end
 end
 
+
 %Display a black screen at the end
 Screen('FillRect', q.window, 0);
 Screen('Flip',q.window);
