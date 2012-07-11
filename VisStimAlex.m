@@ -31,6 +31,7 @@ p.addParamValue('screenClear', 1)
 %       then on to the next orientation 
 % HDH:  Hold then dynamic then hold, all at the same orientation, then on 
 %       to the next orientation. 
+% Ret: Retinotopy stimulus
 p.addParamValue('experimentType', 'HD');
 
 % testing mode:
@@ -94,13 +95,23 @@ p.addParamValue('diodePatchYSize', 100);
 p.addParamValue('startBsl',10);
 p.addParamValue('endBsl',10);
 
+% Retinotopy parameters
+p.addParamValue('retinotopyType', 'D')                          %Which type of retinotopy to run:
+                                                                                        %D = drifts
+                                                                                        %Flip = flips
+p.addParamValue('patchGridDimensions', [6 4])                              % The size of the grid to divide the visual field by - [x y]
+p.addParamValue('retinotopyRandMode', 0)                       % Same as randMode, but for the order of patch presentation
+
 % --------------- System Parameters ---------------
 % There should not, normally, be any reason for these to be changed.
 
 %NI card parameters
 p.addParamValue('inputLine', 3);
 p.addParamValue('inputPort', 1);
-p.addParamValue('deviceName','Dev1');                                                                       
+p.addParamValue('deviceName','Dev1');
+p.addParamValue('testingMode', 0)                       %0 turns off testing mode (assumes DAQ toolbox present, running on windows)
+                                                                         %1 turns testing mode on - bypasses triggering and only allows keypresses  
+                                                                        
 
 %--------------------Parse Inputs------------------------------------------
 % q is a struct containing all inputted or default parameters
@@ -147,7 +158,7 @@ end
 
 
 q.startTime=datestr(now, 'yyyy/mm/dd HH:MM:SS.FFF');       % Records start time
-display(sprintf(strcat('\r----------------', q.startTime, '-------------------\r'))); %outputs start time
+display(sprintf(strcat('\r----------------', q.startTime, '-------------------\r\r'))); %outputs start time
 HideCursor;   
 
 Priority(MaxPriority(q.window));                      % Needed to ensure maximum performance
@@ -192,6 +203,8 @@ try
                     stimulusInfo.preDriftHoldTime = q.preDriftHoldTime;
                     stimulusInfo.driftTime = q.driftTime;
                     stimulusInfo.postDriftHoldTime = q.postDriftHoldTime;
+                case 'Ret'
+                    stimulusInfo=RetinotopyDrift(q);
             end
         case 'on'
             switch q.experimentType
