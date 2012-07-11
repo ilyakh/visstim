@@ -109,9 +109,6 @@ p.addParamValue('retinotopyRandMode', 0)                       % Same as randMod
 p.addParamValue('inputLine', 3);
 p.addParamValue('inputPort', 1);
 p.addParamValue('deviceName','Dev1');
-p.addParamValue('testingMode', 0)                       %0 turns off testing mode (assumes DAQ toolbox present, running on windows)
-                                                                         %1 turns testing mode on - bypasses triggering and only allows keypresses  
-                                                                        
 
 %--------------------Parse Inputs------------------------------------------
 % q is a struct containing all inputted or default parameters

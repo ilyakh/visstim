@@ -15,5 +15,9 @@ end
 if sum(strcmp(q.experimentType, {'D', 'HD', 'HDH', 'DH'}))
     stimulusInfo.directionsNum = q.directionsNum;
 end
+
+if strcmp(q.experimentType, 'Ret')
+    stimulusInfo.nPatches = q.patchGridDimensions(1)*q.patchGridDimensions(2);
+end
 end
 

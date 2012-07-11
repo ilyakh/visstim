@@ -125,7 +125,7 @@ switch q.experimentType
                     end
                 end
         end
-        case 'HD'
+    case 'HD'
         %Preallocate
         stimulusInfo.stimuli = struct('type', [], 'repeat', [], 'num', [], 'direction', [], 'startTime', [], 'endTime', []);
         stimulusInfo.stimuli(q.repeats * q.directionsNum*2).type=[];
@@ -193,7 +193,7 @@ switch q.experimentType
                     end
                 end
         end
-        case 'HDH'
+    case 'HDH'
         %Preallocate
         stimulusInfo.stimuli = struct('type', [], 'repeat', [], 'num', [], 'direction', [], 'startTime', [], 'endTime', []);
         stimulusInfo.stimuli(q.repeats * q.directionsNum*3).type=[];
@@ -214,7 +214,7 @@ switch q.experimentType
                         stimulusInfo.stimuli(currentStimIndex*3+3).repeat = repeat;
                         stimulusInfo.stimuli(currentStimIndex*3+3).num = d;
                         stimulusInfo.stimuli(currentStimIndex*3+3).direction = (d-1)*360/q.directionsNum;
-
+                        
                         currentStimIndex = currentStimIndex + 1;
                     end
                 end
@@ -232,7 +232,7 @@ switch q.experimentType
                         stimulusInfo.stimuli(currentStimIndex*3+3).repeat = repeat;
                         stimulusInfo.stimuli(currentStimIndex*3+3).num = d;
                         stimulusInfo.stimuli(currentStimIndex*3+3).direction = directionsOrder(d);
-
+                        
                         currentStimIndex = currentStimIndex + 1;
                     end
                 end
@@ -272,6 +272,77 @@ switch q.experimentType
                         currentStimIndex = currentStimIndex + 1;
                     end
                 end
+        end
+    case 'Ret'
+        nPatches = q.patchGridDimensions(1)*q.patchGridDimensions(2);
+        
+        stimulusInfo.stimuli = struct('type', [], 'repeat', [], 'patch', [], 'num', [], 'direction', [], 'startTime', [], 'endTime', []);
+        stimulusInfo.stimuli(q.repeats * q.directionsNum * nPatches).type=[];
+        
+        % This switch structure preloads patch identity
+        patches = zeros(nPatches*q.repeats, 1);
+        switch q.retinotopyRandMode
+            case 0 %orderly progression of patches
+                for i = 1:q.repeats
+                    patches(((i-1)*nPatches +1): i*nPatches) = 1:nPatches;
+                end
+            case 1 %pseudorandom repeated
+                O=randperm(nPatches);
+                for i = 1:q.repeats
+                    patches(((i-1)*nPatches +1): i*nPatches)= O;
+                end
+            case 2 %pseudorandom
+                patches = zeros(nPatches*q.repeats, 1);
+                for i = 1:q.repeats
+                    patches(((i-1)*nPatches +1): i*nPatches) = randperm(nPatches);
+                end
+            case 3
+                for i = 1:q.repeats
+                    patches(((i-1)*nPatches +1): i*nPatches) = maximallyDifferentDirections(nPatches);
+                end
+        end
+        
+        
+        patches =imresize(patches, [length(patches)*q.directionsNum, 1], 'nearest'); % duplicate for all directions
+        
+        % This switch structure preloads direction identity
+        dirsN=zeros(q.directionsNum*nPatches*q.repeats, 1);
+        switch q.randMode
+            case 0 %orderly progression of directions
+                d=1:q.directionsNum;
+                for i=1:q.directionsNum:length(dirsN)
+                    dirsN(i:i+q.directionsNum-1) = d;
+                end
+            case 1 %pseudorandom repeated
+                d= randperm(q.directionsNum);
+                for i=1:q.directionsNum:length(dirsN)
+                    dirsN(i:i+q.directionsNum-1) = d;
+                end
+            case 2 %pseudorandom
+                for i=1:q.directionsNum:length(dirsN)
+                    d= randperm(q.directionsNum);
+                    dirsN(i:i+q.directionsNum-1) = d;
+                end
+            case 3 %max diff
+                d= maximallyDifferentDirections(q.directionsNum);
+                for i=1:q.directionsNum:length(dirsN)
+                    dirsN(i:i+q.directionsNum-1) = d;
+                end
+        end
+        directions = (dirsN-1)*(360/q.directionsNum);
+        
+        % and assign
+        idx = 0;
+        for repeat = 1:q.repeats
+            for patch=1:nPatches
+                for d=1:q.directionsNum
+                    idx=idx+1;
+                    stimulusInfo.stimuli(idx).repeat = repeat;
+                    stimulusInfo.stimuli(idx).patch = patches(idx);
+                    stimulusInfo.stimuli(idx).num = d;
+                    stimulusInfo.stimuli(idx).direction = directions(idx); % just dump in the angles in order, starting from 0
+                end
+            end
         end
 end
 
