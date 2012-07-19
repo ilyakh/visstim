@@ -224,6 +224,9 @@ try
                     stimulusInfo.preDriftHoldTime = q.preDriftHoldTime;
                     stimulusInfo.driftTime = q.driftTime;
                     stimulusInfo.postDriftHoldTime = q.postDriftHoldTime;
+                case 'Ret'
+                    stimulusInfo=RetinotopyDriftTriggered(q);
+                    
             end
     end
 catch err
@@ -231,6 +234,7 @@ catch err
         Screen('CloseAll')
         clear mex
         fprintf('Program terminated before stimulus presentation \n stimulusInfo will not be saved \n')
+        stimulusInfo=[];
         return
     else
         clear mex
