@@ -69,8 +69,6 @@ idx=0;
 try
 for repeat = 1:q.repeats
     for patch = 1:stimulusInfo.nPatches
-        %overdraw the photodiode rectangle if it is of finite size (i.e.
-        %wanted)
         for d=1:q.directionsNum
             idx=idx+1;
             %Record absolute and relative stimulus start time
@@ -85,10 +83,11 @@ for repeat = 1:q.repeats
                 
                 %Draw grating texture, rotated by "angle":
                 Screen('DrawTexture', q.window, q.gratingtex, srcRect, [], thisDirection);
-                
-                %overdraw the alpha mask
+                %Overdraw the alpha mask
                 Screen('DrawTexture', q.window, masktex(stimulusInfo.stimuli(idx).patch));
-                
+                 
+                %overdraw the photodiode rectangle if it is of finite size (i.e.
+                %wanted)
                 if q.photoDiodeRect(2)
                     if d==1
                         Screen('FillRect', q.window, 255,q.photoDiodeRect )
@@ -99,7 +98,6 @@ for repeat = 1:q.repeats
                 
                 %push to screen
                 Screen('Flip',q.window);
-                
                 %Record measured stimulus display time
                 stimulusInfo.stimuli((repeat-1)*q.directionsNum + d).endTime = toc;
             end
