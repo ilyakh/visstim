@@ -109,6 +109,7 @@ p.addParamValue('retinotopyRandMode', 0)                       % Same as randMod
 p.addParamValue('inputLine', 3);
 p.addParamValue('inputPort', 1);
 p.addParamValue('deviceName','Dev1');
+KbName('UnifyKeyNames')                 %Needed fpr cross-platform compatibility
 
 %--------------------Parse Inputs------------------------------------------
 % q is a struct containing all inputted or default parameters
