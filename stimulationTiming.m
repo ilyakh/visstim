@@ -103,7 +103,9 @@ p.addParamValue('endBsl',10);
 p.addParamValue('retinotopyType', 'D')                          %Which type of retinotopy to run:
                                                                                         %D = drifts
                                                                                         %Flip = flips
-p.addParamValue('patchGridDimensions', [6 4])                              % The size of the grid to divide the visual field by - [x y]
+% The size of the grid to divide the visual field by - [x y]
+p.addParamValue('patchGridX', 6)
+p.addParamValue('patchGridY', 4)
 p.addParamValue('retinotopyRandMode', 0)                       % Same as randMode, but for the order of patch presentation
 
 % --------------- System Parameters ---------------
@@ -118,6 +120,7 @@ p.addParamValue('deviceName','Dev1');
 p.parse(varargin{:});
 q = p.Results;
 
+
 switch q.experimentType
     case 'Flip'
         triggerTime=q.flipTime;
@@ -130,12 +133,12 @@ switch q.experimentType
     case 'HDH'
         triggerTime=q.preDriftHoldTime+q.driftTime+q.postDriftHoldTime;
     case 'Ret'
-        triggerTime=q.driftTime*d.directionsNum;
+        triggerTime=q.driftTime*q.directionsNum;
 end
 
 %How many triggers we're going to need
 if strcmp(q.experimentType, 'Ret')
-    stimuliNum = prod(q.patchGridDimensions);
+    stimuliNum = q.patchGridX* q.patchGridY;
     repeats=q.repeats;
 else
     stimuliNum=q.directionsNum;

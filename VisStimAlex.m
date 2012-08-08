@@ -99,9 +99,9 @@ p.addParamValue('endBsl',10);
 p.addParamValue('retinotopyType', 'D')                          %Which type of retinotopy to run:
                                                                                         %D = drifts
                                                                                         %Flip = flips
-p.addParamValue('patchGridDimensions', [6 4])                              % The size of the grid to divide the visual field by - [x y]
 p.addParamValue('retinotopyRandMode', 0)                       % Same as randMode, but for the order of patch presentation
-
+p.addParamValue('patchGridX', 6)
+p.addParamValue('patchGridY', 4)
 % --------------- System Parameters ---------------
 % There should not, normally, be any reason for these to be changed.
 
@@ -116,11 +116,13 @@ KbName('UnifyKeyNames')                 %Needed fpr cross-platform compatibility
 try
     p.parse(varargin{:});
     q = p.Results;
+    q.patchGridDimensions=[q.patchGridX q.patchGridY];
 catch 
     clear mex
     fprintf('Parameter not found \n')
     return
 end
+
 
 %--------------------Start PTB ------------------------------------------
 try
