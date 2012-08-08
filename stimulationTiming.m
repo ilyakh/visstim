@@ -1,4 +1,4 @@
-function [triggerTime,repeats,stimuliNum] = stimulationTiming(varargin)
+function [triggerTime,repeats,stimuliNum, startBsl, endBsl] = stimulationTiming(varargin)
 %STIMULATIONTIMING Returns the time (in seconds) of a cycle - i.e. trigger timing.
 %   Input 'mode' as either 'Flip', 'D', 'DH', 'HD', 'HDH'
 %   Input timings as property name/value pairs
@@ -10,7 +10,7 @@ function [triggerTime,repeats,stimuliNum] = stimulationTiming(varargin)
 %   get the default trigger times by simply calling stimulationTiming(mode)
 
 p=inputParser;
------------ Program  Setup ---------------------------------
+%----------- Program  Setup ---------------------------------
 
 % Whether or not to wait for keypresses at the beginning and end. Default
 % is not to (0)
@@ -141,5 +141,8 @@ else
     stimuliNum=q.directionsNum;
     repeats=q.repeats;
 end
+
+startBsl = q.startBsl;
+endBsl = q.endBsl;
 end
  
