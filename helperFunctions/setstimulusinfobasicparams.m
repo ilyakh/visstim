@@ -18,6 +18,8 @@ end
 
 if strcmp(q.experimentType, 'Ret')
     stimulusInfo.nPatches = q.patchGridDimensions(1)*q.patchGridDimensions(2);
+    stimulusInfo.patchGridX=q.patchGridX;
+    stimulusInfo.patchGridY=q.patchGridY;
 end
 end
 

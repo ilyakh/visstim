@@ -58,7 +58,7 @@ p.addParamValue('photoDiode', 'on');
 % add a default save path. This is safest. All timestamped stimulus files
 % will be saved here. To save a different directory, pass that directory
 % in. To suppress saving, pass an empty string ('')
-p.addParamValue('filePath', 'C:\Users\Bruno\Documents\MATLAB\')
+p.addParamValue('filePath', 'C:\Users\Alex\Documents\MATLAB\')
 
 
 % Grating parameters:
@@ -277,6 +277,7 @@ if q.screenClear
     Screen('CloseAll')
     clear mex
 else
-    Screen('FillRect', window,127);                         % Grey Background for initialisation
-    Screen('Flip',window);
+    Screen
+    Screen('FillRect', q.window,127);                         % Grey Background for initialisation
+    Screen('Flip',q.window);
 end
