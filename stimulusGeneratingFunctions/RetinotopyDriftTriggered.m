@@ -69,8 +69,8 @@ idx=0;
 try
     for repeat = 1:q.repeats
         for patch = 1:stimulusInfo.nPatches
-            %% Run by dead reckoning until the last stimulus (controlled by trigger)
-            for d=1:q.directionsNum-1
+            %% Run by dead reckoning
+            for d=1:q.directionsNum
                 idx=idx+1;
                 %Record absolute and relative stimulus start time
                 stimulusInfo.stimuli(idx).startTime = toc;
@@ -102,39 +102,11 @@ try
                     %Record measured stimulus display time
                     stimulusInfo.stimuli((repeat-1)*q.directionsNum + d).endTime = toc;
                 end
-                %Quit only if 'esc' key was pressed
-                [~, ~, keyCode] = KbCheck;
-                if keyCode(KbName('escape')), error('escape'), end
             end
             
-            %% Final Stimulus
-            idx=idx+1;
-            %Record absolute and relative stimulus start time
-            stimulusInfo.stimuli(idx).startTime = toc;
-            stimulusInfo.stimuli(idx).type='Drift';
-            thisDirection = stimulusInfo.stimuli(idx).direction + 90;       %0, the first orientation, corresponds to movement towards the top of the screen
-            frameCount= 0;
+          
             while ~getvalue(q.input)
-                frameCount=frameCount+1;
-                %Define shifted srcRect that cuts out the properly shifted rectangular
-                %area from the texture:
-                xoffset = mod(frameCount*DG_ShiftPerFrame,DG_SpatialPeriod);
-                srcRect=[xoffset 0 (xoffset + q.screenRect(3)*2) q.screenRect(4)*2];
-                
-                %Draw grating texture, rotated by "angle":
-                Screen('DrawTexture', q.window, q.gratingtex, srcRect, [], thisDirection);
-                %Overdraw the alpha mask
-                Screen('DrawTexture', q.window, masktex(stimulusInfo.stimuli(idx).patch));
-                
-                %overdraw the photodiode rectangle if it is of finite size (i.e.
-                %wanted)
-                if q.photoDiodeRect(2)
-                    if d==1
-                        Screen('FillRect', q.window, 255,q.photoDiodeRect )
-                    else
-                        Screen('FillRect', q.window, 0, q.photoDiodeRect)
-                    end
-                end
+                Screen('FillRect', q.window, 0);
                 %push to screen
                 Screen('Flip',q.window);
                 %Quit if 'esc' key was pressed; advance if 't' key pressed
@@ -143,8 +115,6 @@ try
                 elseif keyCode(KbName('t')), break
                 end
             end
-            %Record measured stimulus display time
-            stimulusInfo.stimuli((repeat-1)*q.directionsNum + d).endTime = toc;
         end     
     end
 catch err
