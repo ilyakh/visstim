@@ -8,7 +8,7 @@ function masktex=patchgrid(q, stimulusInfo)
  
  %enable alpha blending and create masks
  Screen('BlendFunction', q.window, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
- mask=ones(q.screenRect(3), q.screenRect(4), 2) * 128; %unused luminance channel - fill with grey
+ mask=zeros(q.screenRect(3), q.screenRect(4), 2); %luminance channel - fill with black
  mask(:,:,2)=255; %default alpha channel to max(opaque)
  
  masktex=zeros(stimulusInfo.nPatches, 1); %array of handles
