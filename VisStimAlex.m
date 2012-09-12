@@ -1,4 +1,4 @@
-% Visual Stimulation Script - Alex Brown, v2.4 April 2011
+% Visual Stimulation Script - Alex Brown
 %
 % Adapted from Bruno Pichler's Grating Script
 
