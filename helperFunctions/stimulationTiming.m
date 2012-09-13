@@ -100,13 +100,19 @@ p.addParamValue('startBsl',10);
 p.addParamValue('endBsl',10);
 
 % Retinotopy parameters
-p.addParamValue('retinotopyType', 'D')                          %Which type of retinotopy to run:
+p.addParamValue('retinotopyType', 'D');                          %Which type of retinotopy to run:
                                                                                         %D = drifts
                                                                                         %Flip = flips
-% The size of the grid to divide the visual field by - [x y]
-p.addParamValue('patchGridX', 6)
-p.addParamValue('patchGridY', 4)
-p.addParamValue('retinotopyRandMode', 0)                       % Same as randMode, but for the order of patch presentation
+p.addParamValue('retinotopyRandMode', 0);                       % Same as randMode, but for the order of patch presentation
+p.addParamValue('patchGridX', 6);
+p.addParamValue('patchGridY', 4);
+
+% Sparse Noise parameters
+p.addParamValue('spnSpotSize', 10);
+p.addParamValue('meanSpots', 8);
+p.addParamValue('stdSpots', 1);
+p.addParamValue('spotTime', 1);
+p.addParamValue('nStimFrames', 300);
 
 % --------------- System Parameters ---------------
 % There should not, normally, be any reason for these to be changed.
@@ -134,16 +140,22 @@ switch q.experimentType
         triggerTime=q.preDriftHoldTime+q.driftTime+q.postDriftHoldTime;
     case 'Ret'
         triggerTime=q.driftTime*q.directionsNum;
+    case 'spn'
+        triggerTime=q.spotTime;
 end
 
 %How many triggers we're going to need
 if strcmp(q.experimentType, 'Ret')
     stimuliNum = q.patchGridX* q.patchGridY;
     repeats=q.repeats;
+elseif strcmp(q.experimentType, 'spn')
+    stimuliNum=q.nStimFrames;
+    repeats=1;
 else
     stimuliNum=q.directionsNum;
     repeats=q.repeats;
 end
+
 
 startBsl = q.startBsl;
 endBsl = q.endBsl;
