@@ -238,7 +238,6 @@ try
                     stimulusInfo.postDriftHoldTime = q.postDriftHoldTime;
                 case 'Ret'
                     stimulusInfo=RetinotopyDriftTriggered(q);
-                    
             end
     end
 catch err
