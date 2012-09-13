@@ -26,6 +26,7 @@ switch q.experimentType
         stimulusInfo.stdSpots=q.stdSpots;
         stimulusInfo.spotTime=q.spotTime;
         stimulusInfo.nStimFrames=q.nStimFrames;
+        stimulusInfo.spotSizeDegrees=atand(q.screenWidthCm/2/q.mouseDistanceCm)/q.screenRect(3)*q.spnSpotSize;
 end
 
 end

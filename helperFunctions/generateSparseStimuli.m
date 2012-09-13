@@ -1,4 +1,4 @@
-function stimulusInfo=generateSparseStimuli(q)
+function stimulusInfo=generateSparseStimuli(q, stimulusInfo)
 
 xLocations=q.screenRect(3)/q.spnSpotSize;
 yLocations=q.screenRect(4)/q.spnSpotSize;

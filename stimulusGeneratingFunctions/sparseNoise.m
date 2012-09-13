@@ -7,10 +7,12 @@ function stimulusInfo = sparseNoise(q)
 %   VisStimAlex
 %
 % Ouput:
+stimulusInfo=setstimulusinfobasicparams(q);
+stimulusInfo=generateSparseStimuli(q,stimulusInfo);
 
-stimulusInfo=generateSparseStimuli(q);
 Screen('FillRect', q.window, 0); %fill with black as a signal for the diode
 Screen('Flip', q.window);
+KbWait();                   %Wait for keypress to start
 WaitSecs(1);
 
 Screen('FillRect', q.window, 127); %fill with grey
@@ -25,12 +27,12 @@ for i=1:q.nStimFrames;
     v=cat(1, v, v, v);
     
     Screen('FillRect', q.window, 127);
-    Screen('DrawDots', q.window, cat(2, r, c)'*q.spnSpotSize, 10, v);
+    Screen('DrawDots', q.window, cat(2, r, c)'*q.spnSpotSize, 10, v,[],1);
     Screen('Flip', q.window);
     stimulusInfo.stimuli(i).startTime=toc;
     for delay=2:round(q.spotTime/q.ifi)         %Wait the requested time by calculating the correct
         Screen('FillRect', q.window, 127);      %number of screen flips, and executing them.
-        Screen('DrawDots', q.window, cat(2, r, c)'*q.spnSpotSize, 10, v);
+        Screen('DrawDots', q.window, cat(2, r, c)'*q.spnSpotSize, 10, v,[],1);
         Screen('Flip', q.window);       
     end     
     %Quit only if 'esc' key was pressed
