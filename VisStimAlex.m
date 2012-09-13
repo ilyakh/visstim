@@ -96,12 +96,19 @@ p.addParamValue('startBsl',10);
 p.addParamValue('endBsl',10);
 
 % Retinotopy parameters
-p.addParamValue('retinotopyType', 'D')                          %Which type of retinotopy to run:
+p.addParamValue('retinotopyType', 'D');                          %Which type of retinotopy to run:
                                                                                         %D = drifts
                                                                                         %Flip = flips
-p.addParamValue('retinotopyRandMode', 0)                       % Same as randMode, but for the order of patch presentation
-p.addParamValue('patchGridX', 6)
-p.addParamValue('patchGridY', 4)
+p.addParamValue('retinotopyRandMode', 0);                       % Same as randMode, but for the order of patch presentation
+p.addParamValue('patchGridX', 6);
+p.addParamValue('patchGridY', 4);
+
+% Sparse Noise parameters
+p.addParamValue('spnSpotSize', 10);
+p.addParamValue('meanSpots', 8);
+p.addParamValue('stdSpots', 1);
+p.addParamValue('spotTime', 1);
+p.addParamValue('nStimFrames', 300);
 % --------------- System Parameters ---------------
 % There should not, normally, be any reason for these to be changed.
 
@@ -205,6 +212,8 @@ try
                     stimulusInfo.postDriftHoldTime = q.postDriftHoldTime;
                 case 'Ret'
                     stimulusInfo=RetinotopyDrift(q);
+                case 'spn'
+                    stimulusInfo=sparseNoise(q);
             end
         case 'on'
             switch q.experimentType
@@ -245,9 +254,9 @@ catch err
     end
 end
 
-% Unless it's a flip (in which case it's irrelevant), add temporal and
+% Unless it's a flip or sparse noise (in which case it's irrelevant), add temporal and
 % spatial frequency to the output variable
-if ~(strcmp(q.experimentType, 'Flip'))
+if ~sum((strcmp(q.experimentType, {'Flip', 'spn'})))
     stimulusInfo.temporalFreq = q.tempFreq;
     stimulusInfo.spatialFreq = q.spaceFreqDeg;
     
