@@ -22,19 +22,20 @@ WaitSecs(q.baseLineTime) %and wait during baseline
 stimulusInfo.actualBaseLineTime=toc;
 
 for i=1:q.nStimFrames;
-    [r,c,v]=find(stimulusInfo.stimuliSp(:,:,i));
-    v=convertSpotStateGreyscale(v)';
-    v=cat(1, v, v, v);
+    %[r,c,v]=find(stimulusInfo.stimuliSp(:,:,i));
+    %v=convertSpotStateGreyscale(v)';
+    %v=cat(1, v, v, v);
     
     Screen('FillRect', q.window, 127);
-    Screen('DrawDots', q.window, cat(2, r, c)', stimulusInfo.spotSizes{i}, v,[],1);
+    Screen('FillOval', q.window,stimulusInfo.spotColors{i}*255,stimulusInfo.stimuliSp{i}')
     Screen('Flip', q.window);
     stimulusInfo.stimuli(i).startTime=toc;
     for delay=2:round(q.spotTime/q.ifi)         %Wait the requested time by calculating the correct
         Screen('FillRect', q.window, 127);      %number of screen flips, and executing them.
-        Screen('DrawDots', q.window, cat(2, r, c)', stimulusInfo.spotSizes{i}, v,[],1);
+        Screen('FillOval', q.window, stimulusInfo.spotColors{i}*255,stimulusInfo.stimuliSp{i}')
         Screen('Flip', q.window);       
     end     
+    stimulusInfo.stimuli(i).endTime=toc;
     %Quit only if 'esc' key was pressed
     [~, ~, keyCode] = KbCheck;
     if keyCode(KbName('escape')), error('escape'), end

@@ -27,6 +27,7 @@ switch q.experimentType
         stimulusInfo.spotNumberStd=q.spotNumberStd;
         stimulusInfo.spotTime=q.spotTime;
         stimulusInfo.nStimFrames=q.nStimFrames;
+        stimulusInfo.screenRect=q.screenRect;
 end
 
 end
