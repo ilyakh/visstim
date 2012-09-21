@@ -6,7 +6,7 @@ function [stimulusInfo, filePath] = VisStimAlex(varargin)
 %% --------------------------------- Setup---------------------------------
 % Creates input parser  
 p=inputParser;
-% ------------------------ Program  Setup ---------------------------------
+%% ------------------------ Program  Setup ---------------------------------
 
 % Whether or not to wait for keypresses at the beginning and end. Default
 % is not to (0)
@@ -14,8 +14,7 @@ p.addParamValue('keyWait', 0)
 
 % Whether or not to clear the screen at the end. Default is yes (1)
 p.addParamValue('screenClear', 1)
-
-% --------------- Configuration Variables ---------------------------------
+%% --------------- Configuration Variables ---------------------------------
 
 
 %%%%Experiment mode%%%%%%
@@ -110,7 +109,7 @@ p.addParamValue('spotNumberMean', 8);
 p.addParamValue('spotNumberStd', 1);
 p.addParamValue('spotTime', 1);
 p.addParamValue('nStimFrames', 300);
-% --------------- System Parameters ---------------
+%% --------------- System Parameters ---------------
 % There should not, normally, be any reason for these to be changed.
 
 %NI card parameters
@@ -118,8 +117,7 @@ p.addParamValue('inputLine', 3);
 p.addParamValue('inputPort', 1);
 p.addParamValue('deviceName','Dev1');
 KbName('UnifyKeyNames')                 %Needed fpr cross-platform compatibility
-
-%--------------------Parse Inputs------------------------------------------
+%% --------------------Parse Inputs------------------------------------------
 % q is a struct containing all inputted or default parameters
 try
     p.parse(varargin{:});
@@ -130,22 +128,25 @@ catch
     fprintf('Parameter not found \n')
     return
 end
-
-
-%--------------------Start PTB ------------------------------------------
+%% -------------------Start PTB ------------------------------------------
 try
     if q.testingMode > 1
         Screen('Preference', 'verbosity', 4);
     else
         Screen('Preference', 'verbosity', 2);
     end
-    [q.window,q.screenRect,q.ifi]=initScreen; %Returns a handle to the active screen, a rectangle representing size,
+    if strcmp(q.experimentType, 'spn')
+        [q.window,q.screenRect,q.ifi]=initScreen(5); %Returns a handle to the active screen, a rectangle representing size,
+
+    else
+        [q.window,q.screenRect,q.ifi]=initScreen; %Returns a handle to the active screen, a rectangle representing size,
+    end
 catch
     clear mex
     fprintf('PTB Init failure \n')
     return
 end
-% --------------- Calculated Properties ---------------
+%% --------------- Calculated Properties ---------------
 
 % Screen & Distance 
 % screenCenter = [(screenRect(3)-screenRect(1)) (screenRect(4)-screenRect(2))]/2; %Screen Centre in pixels
@@ -160,8 +161,7 @@ if strcmp(q.photoDiode, 'on')
     q.photoDiodeRect = [0 q.screenRect(4)-q.diodePatchYSize q.diodePatchXSize q.screenRect(4)];
 else
     q.photoDiodeRect = [0 0 0 0];
-end
-  
+end  
 %% --------------- The Program Itself ---------------
 
 
