@@ -104,9 +104,8 @@ p.addParamValue('patchGridX', 6);
 p.addParamValue('patchGridY', 4);
 
 % Sparse Noise parameters
-p.addParamValue('spotSizeMean', 10);
-p.addParamValue('spotSizeStd', 5);
-p.addParamValue('spotSizeMin', 5);
+p.addParamValue('spotSizeMean', 20);
+p.addParamValue('spotSizeRange', 5);
 p.addParamValue('spotNumberMean', 8);
 p.addParamValue('spotNumberStd', 1);
 p.addParamValue('spotTime', 1);

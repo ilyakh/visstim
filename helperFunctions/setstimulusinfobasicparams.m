@@ -22,7 +22,7 @@ switch q.experimentType
         stimulusInfo.repeats = q.repeats;
     case 'spn'
         stimulusInfo.spotSizeMean=q.spotSizeMean;
-        stimulusInfo.spotSizeStd=q.spotSizeStd;
+        stimulusInfo.spotSizeRange=q.spotSizeRange;
         stimulusInfo.spotNumberMean=q.spotNumberMean;
         stimulusInfo.spotNumberStd=q.spotNumberStd;
         stimulusInfo.spotTime=q.spotTime;
