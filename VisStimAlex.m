@@ -104,9 +104,10 @@ p.addParamValue('patchGridX', 6);
 p.addParamValue('patchGridY', 4);
 
 % Sparse Noise parameters
-p.addParamValue('spnSpotSize', 10);
-p.addParamValue('meanSpots', 8);
-p.addParamValue('stdSpots', 1);
+p.addParamValue('spotSizeMean', 10);
+p.addParamValue('spotSizeStd', 5)
+p.addParamValue('spotNumberMean', 8);
+p.addParamValue('spotNumberStd', 1);
 p.addParamValue('spotTime', 1);
 p.addParamValue('nStimFrames', 300);
 % --------------- System Parameters ---------------
