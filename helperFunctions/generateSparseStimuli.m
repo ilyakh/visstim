@@ -6,7 +6,7 @@ prevSpots=[];
 for i=1:q.nStimFrames
     nSpots=round(q.meanSpots+q.stdSpots*randn(1));
     nSpots=max([nSpots 1]);                         %Prevent there being no or 'negative' numbers of spots
-    stimulusInfo.spotSizes{i}=q.spotSizeMean+rand(nSpots, 1)*q.spotSizeStd;
+    stimulusInfo.spotSizes{i}=max(q.spotSizeMean+rand(nSpots, 1)*q.spotSizeStd, q.spotSizeMin);
     randomSpots=randperm(q.screenRect(3)*q.screenRect(4), nSpots);
     while sum(ismember(randomSpots, prevSpots))>0
         randomSpots=randperm(xLocations*yLocations, nSpots);
