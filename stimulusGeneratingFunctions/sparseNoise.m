@@ -27,12 +27,12 @@ for i=1:q.nStimFrames;
     v=cat(1, v, v, v);
     
     Screen('FillRect', q.window, 127);
-    Screen('DrawDots', q.window, cat(2, r, c)'*q.spnSpotSize, q.spnSpotSize, v,[],1);
+    Screen('DrawDots', q.window, cat(2, r, c)', stimulusInfo.spotSizes{i}, v,[],1);
     Screen('Flip', q.window);
     stimulusInfo.stimuli(i).startTime=toc;
     for delay=2:round(q.spotTime/q.ifi)         %Wait the requested time by calculating the correct
         Screen('FillRect', q.window, 127);      %number of screen flips, and executing them.
-        Screen('DrawDots', q.window, cat(2, r, c)'*q.spnSpotSize, q.spnSpotSize, v,[],1);
+        Screen('DrawDots', q.window, cat(2, r, c)', stimulusInfo.spotSizes{i}, v,[],1);
         Screen('Flip', q.window);       
     end     
     %Quit only if 'esc' key was pressed

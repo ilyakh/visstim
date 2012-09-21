@@ -21,12 +21,12 @@ switch q.experimentType
         stimulusInfo.patchGridY=q.patchGridY;
         stimulusInfo.repeats = q.repeats;
     case 'spn'
-        stimulusInfo.spnSpotSize=q.spnSpotSize;
-        stimulusInfo.meanSpots=q.meanSpots;
-        stimulusInfo.stdSpots=q.stdSpots;
+        stimulusInfo.spotSizeMean=q.spotSizeMean;
+        stimulusInfo.spotSizeStd=q.spotSizeStd;
+        stimulusInfo.spotNumberMean=q.spotNumberMean;
+        stimulusInfo.spotNumberStd=q.spotNumberStd;
         stimulusInfo.spotTime=q.spotTime;
         stimulusInfo.nStimFrames=q.nStimFrames;
-        stimulusInfo.spotSizeDegrees=atand(q.screenWidthCm/2/q.mouseDistanceCm)/q.screenRect(3)*q.spnSpotSize;
 end
 
 end
