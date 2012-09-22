@@ -3,7 +3,11 @@ border=s.spotSizeMean+s.spotSizeRange;
 stimulusStack=zeros(s.screenRect(3)+border, s.screenRect(4)+border, s.nStimFrames, 'int8');
 [xx yy] = meshgrid(1:size(stimulusStack,1), 1:size(stimulusStack, 2));
 
+prevstr=[];
 for sf=1:s.nStimFrames
+    newstr=sprintf('Processing frame %i of %i...', sf, s.nStimFrames);
+    refreshdisp(newstr, prevstr, sf);
+    prevstr=newstr;
     for spot=1:size(s.stimuliSp{sf}, 1)
         r=s.stimuliSp{sf}(spot, :);
         xC=mean([r(1) r(3)]); yC=mean([r(2) r(4)]);
@@ -12,5 +16,6 @@ for sf=1:s.nStimFrames
         stimulusStack(:,:, sf)=stimulusStack(:,:, sf)+int8(spotCol*C');
     end
 end
+fprintf('Done \n')
 
 

@@ -23,7 +23,7 @@ for i=1:q.nStimFrames
         randLocR=randLocL+stimulusInfo.spotSizes{i}(j);
         randLocB=randLocT+stimulusInfo.spotSizes{i}(j);
         
-        while sum(~possLocations(randLocL:randLocR, randLocT:randLocB)) %Check for overlap; repeat if there is any.
+        while sum(sum(~possLocations(randLocL:randLocR, randLocT:randLocB))) %Check for overlap; repeat if there is any.
             randLocL=randi(q.screenRect(3));
             randLocT=randi(q.screenRect(4));
             randLocR=randLocL+stimulusInfo.spotSizes{i}(j);
