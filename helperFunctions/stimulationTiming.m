@@ -106,6 +106,7 @@ p.addParamValue('retinotopyType', 'D');                          %Which type of 
 p.addParamValue('retinotopyRandMode', 0);                       % Same as randMode, but for the order of patch presentation
 p.addParamValue('patchGridX', 6);
 p.addParamValue('patchGridY', 4);
+p.addParamValue('postPatchPause', 1)                            % How long, in seconds, to leave after a patch. Has no effect on stimulus generation but is used by 2p triggering (Alex)
 
 % Sparse Noise parameters
 p.addParamValue('spotSizeMean', 20);
@@ -140,7 +141,7 @@ switch q.experimentType
     case 'HDH'
         triggerTime=q.preDriftHoldTime+q.driftTime+q.postDriftHoldTime;
     case 'Ret'
-        triggerTime=q.driftTime*q.directionsNum;
+        triggerTime=q.driftTime*q.directionsNum+q.postPatchPause;
     case 'spn'
         triggerTime=q.spotTime;
 end
