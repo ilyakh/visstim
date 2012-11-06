@@ -19,7 +19,7 @@ switch q.triggering
                 if keyCode(KbName('escape')), error('escapeBsl'), end
             end
         end
-    case 'on'
+    case {'on', 'toBegin'}
         % Display a black screen
         Screen('FillRect', q.window, 0);
         Screen('Flip',q.window);
@@ -35,6 +35,7 @@ switch q.triggering
                 break
             end
         end
+        
 end
 end
 
