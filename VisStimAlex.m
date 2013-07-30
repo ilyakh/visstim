@@ -31,6 +31,7 @@ p.addParamValue('screenClear', 1)
 % HDH:  Hold then dynamic then hold, all at the same orientation, then on
 %       to the next orientation.
 % Ret: Retinotopy stimulus
+% freqTuning: spatiotemporal tuning (HD)
 p.addParamValue('experimentType', 'HD');
 
 % testing mode:
@@ -112,6 +113,9 @@ p.addParamValue('spotNumberMean', 8);
 p.addParamValue('spotNumberStd', 1);
 p.addParamValue('spotTime', 1);
 p.addParamValue('nStimFrames', 300);
+
+% Frequency tuning
+p.addParamValue('directionForFreqTuning', 180)
 %% --------------- System Parameters ---------------
 % There should not, normally, be any reason for these to be changed.
 
@@ -126,10 +130,9 @@ try
     p.parse(varargin{:});
     q = p.Results;
     q.patchGridDimensions=[q.patchGridX q.patchGridY];
-catch
-    clear mex
-    fprintf('Parameter not found \n')
-    return
+catch err
+        clear mex
+        rethrow(err)
 end
 %% -------------------Start PTB ------------------------------------------
 try
@@ -155,8 +158,11 @@ end
 % screenCenter = [(screenRect(3)-screenRect(1)) (screenRect(4)-screenRect(2))]/2; %Screen Centre in pixels
 q.pixelsPerCm = q.screenRect(3) / q.screenWidthCm;             % Scaling factor for conversion between pixels and cm
 q.mouseDistancePixels = q.mouseDistanceCm .*q.pixelsPerCm;    % Convert the mouse distance from the screen in to pixels
-q.spaceFreqPixels = 1 / (2* q.mouseDistancePixels * tan((1 / q.spaceFreqDeg) * pi / 180 / 2));
 
+q.spaceFreqPixels=zeros(size(q.spaceFreqDeg));
+for ii=1:length(q.spaceFreqDeg)
+q.spaceFreqPixels(ii) = 1 / (2* q.mouseDistancePixels * tan((1 / q.spaceFreqDeg(ii)) * pi / 180 / 2));
+end
 q.hz = 1/q.ifi;                                             % Screen flip frequency
 
 %Photodiode display area
@@ -180,8 +186,13 @@ Screen('Flip',q.window);
 
 % Generate the grating itself
 g=127+127*GratingAlex(q.gratingType,(q.screenRect(1)+1:q.screenRect(3)*2), (q.screenRect(2)+1:q.screenRect(4)*2), 0, q.spaceFreqPixels);
-q.gratingtex=Screen('MakeTexture', q.window, g);
-
+if ndims(g)>2&&size(g, 3)>1
+    for ii=1:size(g, 3)
+        q.gratingtex(ii)=Screen('MakeTexture', q.window, squeeze(g(:,:,ii)));
+    end
+else
+    q.gratingtex=Screen('MakeTexture', q.window, g);
+end
 %Decide where we're going to save it
 q.fileName = datestr(now, 'yyyymmdd_HH_MM_SS');
 
@@ -219,6 +230,8 @@ try
                     stimulusInfo=RetinotopyDrift(q);
                 case 'spn'
                     stimulusInfo=sparseNoise(q);
+                otherwise
+                    error('Unsupported Mode')
             end
         case 'on'
             switch q.experimentType
@@ -243,6 +256,8 @@ try
                     stimulusInfo.postDriftHoldTime = q.postDriftHoldTime;
                 case 'Ret'
                     stimulusInfo=RetinotopyDriftTriggered(q);
+                otherwise
+                   error('Unsupported Mode')
             end
         case 'toBegin'
             q.input=initialisedio(q);
@@ -270,6 +285,11 @@ try
                     stimulusInfo=RetinotopyDrift(q);
                 case 'spn'
                     stimulusInfo=sparseNoise(q);
+                case 'freqTuning'
+                    stimulusInfo=freqTuningHD(q);
+                otherwise
+                    error('Unsupported Mode')
+
             end
     end
     

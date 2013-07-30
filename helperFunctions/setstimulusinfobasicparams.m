@@ -28,6 +28,11 @@ switch q.experimentType
         stimulusInfo.spotTime=q.spotTime;
         stimulusInfo.nStimFrames=q.nStimFrames;
         stimulusInfo.screenRect=q.screenRect;
+    case 'freqTuning'
+        stimulusInfo.direction= q.directionForFreqTuning;
+        stimulusInfo.repeats = q.repeats;
+    otherwise
+        error('Unsupported Mode')
 end
 
 end

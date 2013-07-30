@@ -344,6 +344,93 @@ switch q.experimentType
                 end
             end
         end
+    case 'freqTuning'
+        
+        s=q.spaceFreqDeg;
+        t=q.tempFreq;
+        
+        %Preallocate
+        stimulusInfo.stimuli = struct('type', [], 'repeat', [], 'num', [], 'direction', [], 'startTime', [], 'endTime', [], 'spaceFreqDeg', [], 'tempFreq', []);
+        stimulusInfo.stimuli(q.repeats * length(s)*length(t)*2).type=[];
+        
+        % This switch structure preloads the stimuli struct with the desired
+        % directions
+        currentStimIndex = 0;
+        switch q.randMode
+            case 0 %Orderly progression of gratings
+                for repeat = 1:q.repeats
+                    for ii=1:length(s)
+                        for jj=1:length(t)
+                        stimulusInfo.stimuli(currentStimIndex*2+1).repeat = repeat;
+                        stimulusInfo.stimuli(currentStimIndex*2+1).direction = q.directionForFreqTuning;
+                        stimulusInfo.stimuli(currentStimIndex*2+1).spaceFreqDeg = s(ii);
+                        stimulusInfo.stimuli(currentStimIndex*2+1).tempFreq = t(jj);
+                        stimulusInfo.stimuli(currentStimIndex*2+1).num=[find(t==stimulusInfo.stimuli(currentStimIndex*2+1).tempFreq)...
+                                                                            find(s==stimulusInfo.stimuli(currentStimIndex*2+1).spaceFreqDeg)];
+                            
+                        stimulusInfo.stimuli(currentStimIndex*2+2).repeat = repeat;
+                        stimulusInfo.stimuli(currentStimIndex*2+2).direction = q.directionForFreqTuning;
+                        stimulusInfo.stimuli(currentStimIndex*2+2).spaceFreqDeg = s(ii);
+                        stimulusInfo.stimuli(currentStimIndex*2+2).tempFreq = t(jj);
+                        stimulusInfo.stimuli(currentStimIndex*2+1).num=[find(t==stimulusInfo.stimuli(currentStimIndex*2+1).tempFreq)...
+                                                                            find(s==stimulusInfo.stimuli(currentStimIndex*2+1).spaceFreqDeg)];
+                            
+                        currentStimIndex = currentStimIndex + 1;
+                        end
+                    end
+                end
+            case 1 % Assign a pseudorandom order to be used in each repetition
+                [sGrid, tGrid]=meshgrid(s, t);
+                order = randperm(length(s)*length(t));
+                for repeat = 1:q.repeats
+                    for ii=1:length(s)
+                        for jj=1:length(t)
+                            theseConditionsIdx=order(mod(currentStimIndex, length(s)*length(t))+1);
+                            stimulusInfo.stimuli(currentStimIndex*2+1).repeat = repeat;
+                            stimulusInfo.stimuli(currentStimIndex*2+1).direction = q.directionForFreqTuning; % assign the appropriate direction
+                            stimulusInfo.stimuli(currentStimIndex*2+1).spaceFreqDeg = sGrid(theseConditionsIdx);
+                            stimulusInfo.stimuli(currentStimIndex*2+1).tempFreq = tGrid(theseConditionsIdx);
+                            stimulusInfo.stimuli(currentStimIndex*2+1).num=[find(t==stimulusInfo.stimuli(currentStimIndex*2+1).tempFreq)...
+                                                                            find(s==stimulusInfo.stimuli(currentStimIndex*2+1).spaceFreqDeg)];
+                            
+                            stimulusInfo.stimuli(currentStimIndex*2+2).repeat = repeat;
+                            stimulusInfo.stimuli(currentStimIndex*2+2).direction = q.directionForFreqTuning;
+                            stimulusInfo.stimuli(currentStimIndex*2+2).spaceFreqDeg = sGrid(theseConditionsIdx);
+                            stimulusInfo.stimuli(currentStimIndex*2+2).tempFreq = tGrid(theseConditionsIdx);
+                            stimulusInfo.stimuli(currentStimIndex*2+2).num=[find(t==stimulusInfo.stimuli(currentStimIndex*2+1).tempFreq)...
+                                                                            find(s==stimulusInfo.stimuli(currentStimIndex*2+1).spaceFreqDeg)];
+                            
+                            currentStimIndex = currentStimIndex + 1;
+                        end
+                    end
+                end
+            case 2 % Assign a new pseudorandom order for each repetition
+                [sGrid, tGrid]=meshgrid(s, t);
+                for repeat = 1:q.repeats;
+                    order = randperm(length(s)*length(t));
+                    for ii=1:length(s)
+                        for jj=1:length(t)
+                            theseConditionsIdx=order(mod(currentStimIndex, length(s)*length(t))+1);
+                            stimulusInfo.stimuli(currentStimIndex*2+1).repeat = repeat;
+                            stimulusInfo.stimuli(currentStimIndex*2+1).direction = q.directionForFreqTuning; % assign the appropriate direction
+                            stimulusInfo.stimuli(currentStimIndex*2+1).spaceFreqDeg = sGrid(theseConditionsIdx);
+                            stimulusInfo.stimuli(currentStimIndex*2+1).tempFreq = tGrid(theseConditionsIdx);
+                            stimulusInfo.stimuli(currentStimIndex*2+1).num=[find(t==stimulusInfo.stimuli(currentStimIndex*2+1).tempFreq)...
+                                                                            find(s==stimulusInfo.stimuli(currentStimIndex*2+1).spaceFreqDeg)];
+                            
+                            stimulusInfo.stimuli(currentStimIndex*2+2).repeat = repeat;
+                            stimulusInfo.stimuli(currentStimIndex*2+2).direction = q.directionForFreqTuning;
+                            stimulusInfo.stimuli(currentStimIndex*2+2).spaceFreqDeg = sGrid(theseConditionsIdx);
+                            stimulusInfo.stimuli(currentStimIndex*2+2).tempFreq = tGrid(theseConditionsIdx);
+                            stimulusInfo.stimuli(currentStimIndex*2+2).num=[find(t==stimulusInfo.stimuli(currentStimIndex*2+1).tempFreq)...
+                                                                            find(s==stimulusInfo.stimuli(currentStimIndex*2+1).spaceFreqDeg)];
+                            currentStimIndex = currentStimIndex + 1;
+                        end
+                    end
+                end
+            case 3
+                error('Maximally Different mode not supported for frequency tuning')
+        end
 end
 
 end
