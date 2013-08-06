@@ -116,6 +116,9 @@ p.addParamValue('spotNumberStd', 1);
 p.addParamValue('spotTime', 1);
 p.addParamValue('nStimFrames', 300);
 
+% Frequency tuning
+p.addParamValue('directionForFreqTuning', 180)
+
 % --------------- System Parameters ---------------
 % There should not, normally, be any reason for these to be changed.
 
@@ -144,6 +147,8 @@ switch q.experimentType
         triggerTime=q.driftTime*q.directionsNum+q.postPatchPause;
     case 'spn'
         triggerTime=q.spotTime;
+    case 'freqTuning'
+        triggerTime=q.preDriftHoldTime+q.driftTime;
 end
 
 %How many triggers we're going to need
@@ -153,6 +158,9 @@ if strcmp(q.experimentType, 'Ret')
 elseif strcmp(q.experimentType, 'spn')
     stimuliNum=q.nStimFrames;
     repeats=1;
+elseif strcmp(q.experimentType, 'freqTuning')
+    stimuliNum=length(q.spaceFreqDeg)*length(q.tempFreq);
+    repeats=q.repeats;
 else
     stimuliNum=q.directionsNum;
     repeats=q.repeats;
