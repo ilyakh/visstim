@@ -119,6 +119,8 @@ p.addParamValue('directionForFreqTuning', 180)
 %% --------------- System Parameters ---------------
 % There should not, normally, be any reason for these to be changed.
 
+p.addParamValue('gratingTextureSize', 4) %The factor by which to enlarge gratings, relative to the size of the screen
+
 %NI card parameters
 p.addParamValue('inputLine', 3);
 p.addParamValue('inputPort', 1);
@@ -185,7 +187,7 @@ Screen('FillRect', q.window,127);                         % Grey Background for 
 Screen('Flip',q.window);
 
 % Generate the grating itself
-g=127+127*GratingAlex(q.gratingType,(q.screenRect(1)+1:q.screenRect(3)*2), (q.screenRect(2)+1:q.screenRect(4)*2), 0, q.spaceFreqPixels);
+g=127+127*GratingAlex(q.gratingType,(q.screenRect(1)+1:q.screenRect(3)*q.gratingTextureSize), (q.screenRect(2)+1:q.screenRect(4)*q.gratingTextureSize), 0, q.spaceFreqPixels);
 if ndims(g)>2&&size(g, 3)>1
     for ii=1:size(g, 3)
         q.gratingtex(ii)=Screen('MakeTexture', q.window, squeeze(g(:,:,ii)));
