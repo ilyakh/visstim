@@ -12,6 +12,8 @@ if strcmp(q.triggering, 'off')
 end
 
 switch q.experimentType
+    case 'Flip'
+        stimulusInfo.repeats=q.repeats;
     case {'D', 'HD', 'HDH', 'DH'}
         stimulusInfo.directionsNum = q.directionsNum;
         stimulusInfo.repeats = q.repeats;
@@ -33,6 +35,7 @@ switch q.experimentType
         stimulusInfo.repeats = q.repeats;
     otherwise
         error('Unsupported Mode')
+        
 end
 
 end
