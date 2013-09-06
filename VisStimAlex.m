@@ -373,11 +373,13 @@ end
 
 if q.screenClear
     Screen('CloseAll');
+    %% --------------- added by ilyakh on 2013-09-06 --------------
     try
         fclose( triggerConnection );
     catch err
         fprintf('Failed to close the serial connection');
     end
+    %% --------------- / added by ilyakh on 2013-09-06 --------------
     clear mex
 else
     Screen
