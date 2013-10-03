@@ -10,7 +10,7 @@ p=inputParser;
 
 % Whether or not to wait for keypresses at the beginning and end. Default
 % is not to (0)
-p.addParamValue('keyWait', 1)
+p.addParamValue('keyWait', 0)
 
 % Whether or not to clear the screen at the end. Default is yes (1)
 p.addParamValue('screenClear', 1)
@@ -54,7 +54,7 @@ p.addParamValue('testingMode', 1)
 p.addParamValue('triggering', 'off');
 
 % when using Clampex and start-trigger on analog-to-digital converter
-p.addParamValue('recordingTrigger', 1);
+p.addParamValue('recordingTrigger', 1); % ilyakh
 
 % photoDiode 'on' will display a patch for photodiode readout. 'off' means
 % no patch will be displayed
@@ -126,7 +126,7 @@ p.addParamValue('gratingTextureSize', 4) %The factor by which to enlarge grating
 
 %% --------------- added by ilyakh on 2013-09-06 --------------------------
 % Serial port parameters
-p.addParamValue( 'serialPort', 'COM1' );
+p.addParamValue( 'serialPort', '/dev/tty.usbserial-A700dY3b' );
 p.addParamValue( 'serialBaudRate', 76800 );     % baudrate for serial communication
 p.addParamValue( 'serialTriggerChar', 'A' );    % character that triggers the recording
 
@@ -138,6 +138,8 @@ p.addParamValue('inputLine', 3);
 p.addParamValue('inputPort', 1);
 p.addParamValue('deviceName','Dev1');
 KbName('UnifyKeyNames')                 %Needed fpr cross-platform compatibility
+
+
 %% --------------------Parse Inputs------------------------------------------
 % q is a struct containing all inputted or default parameters
 try
@@ -148,6 +150,26 @@ catch err
         clear mex
         rethrow(err)
 end
+
+    %% --------------- added by ilyakh on 2013-09-06 --------------------------
+    %% -------------------- Serial communication ------------------------------
+    try
+        if q.recordingTrigger > 0
+            triggerConnection = serial( q.serialPort, 'Baudrate', q.serialBaudRate );
+            fopen( triggerConnection );
+            fprintf( triggerConnection, q.serialTriggerChar );
+            fclose(triggerConnection);
+        end
+    catch err
+        fprintf(err.message);
+        Screen('CloseAll');
+        clear mex;
+    end
+    %% ------------------------------------------------------------------------
+    %% --------------- / added by ilyakh on 2013-09-06 ------------------------
+
+
+
 %% -------------------Start PTB ------------------------------------------
 try
     if q.testingMode > 1
@@ -162,7 +184,8 @@ try
     else
         [q.window,q.screenRect,q.ifi]=initScreen; %Returns a handle to the active screen, a rectangle representing size,
     end
-catch
+    
+catch err
     clear mex
     fprintf('PTB Init failure \n')
     return
@@ -188,19 +211,11 @@ else
 end
 
 
-%% --------------- added by ilyakh on 2013-09-06 --------------------------
-%% -------------------- Serial communication ------------------------------
-try
-    if q.recordingTrigger > 0
-        triggerConnection = serial( q.serialPort, 'BaudRate', q.serialBaudRate );
-        fopen( triggerConnection );
-    end
-catch err
-    fprinltf(err.message);
-    Screen('CloseAll');
-end
-%% ------------------------------------------------------------------------
-%% --------------- / added by ilyakh on 2013-09-06 ------------------------
+%% --------------- added by ilyakh on 2013-09-06 --------------
+
+%% --------------- / added by ilyakh on 2013-09-06 ------------ 
+
+
 
 
 %% --------------- The Program Itself ---------------
@@ -209,6 +224,8 @@ end
 q.startTime=datestr(now, 'yyyy/mm/dd HH:MM:SS.FFF');       % Records start time
 display(sprintf(strcat('\r----------------', q.startTime, '-------------------\r\r'))); %outputs start time
 HideCursor;
+
+
 
 Priority(MaxPriority(q.window));                      % Needed to ensure maximum performance
 
@@ -237,12 +254,6 @@ end
 try
     switch q.triggering
         case 'off'
-            %% --------------- added by ilyakh on 2013-09-06 --------------
-            if q.recordingTrigger > 0
-                fprintf(s, q.serialTriggerChar); % starts the recording
-                fprintf('package sent');
-            end
-            %% --------------- / added by ilyakh on 2013-09-06 ------------
             switch q.experimentType
                 case 'Flip'
                     stimulusInfo = flipStimulus(q);
